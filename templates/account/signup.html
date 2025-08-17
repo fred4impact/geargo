@@ -1,0 +1,275 @@
+{% extends 'account/base_auth.html' %}
+{% load i18n %}
+{% load account socialaccount %}
+
+{% block title %}Create Account - GearGo{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row min-vh-100">
+        <!-- Left Side - Background Image -->
+        <div class="col-lg-6 d-none d-lg-block bg-primary position-relative">
+            <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center">
+                <div class="text-center text-white">
+                    <div class="mb-4">
+                        <i class="fas fa-cogs fa-4x mb-3"></i>
+                        <h1 class="display-4 fw-bold">GearGo</h1>
+                        <p class="lead">AI-Powered Rental Marketplace</p>
+                    </div>
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <i class="fas fa-bicycle fa-2x mb-2"></i>
+                            <p>Bikes</p>
+                        </div>
+                        <div class="col-4">
+                            <i class="fas fa-music fa-2x mb-2"></i>
+                            <p>Instruments</p>
+                        </div>
+                        <div class="col-4">
+                            <i class="fas fa-volume-up fa-2x mb-2"></i>
+                            <p>Sound Equipment</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Side - Signup Form -->
+        <div class="col-lg-6 d-flex align-items-center justify-content-center p-5">
+            <div class="w-100" style="max-width: 450px;">
+                <!-- Header -->
+                <div class="text-center mb-5">
+                    <h1 class="h3 mb-2">Create your account</h1>
+                    <p class="text-muted">Join thousands of users renting and sharing gear</p>
+                </div>
+                
+                <!-- Signup Form -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <!-- Social Signup -->
+                        {% get_providers as socialaccount_providers %}
+                        {% if socialaccount_providers %}
+                            <div class="d-grid mb-4">
+                                <a href="{% provider_login_url 'google' %}" class="btn btn-outline-secondary">
+                                    <i class="fab fa-google me-2"></i>Sign up with Google
+                                </a>
+                            </div>
+                            
+                            <div class="text-center mb-4">
+                                <span class="text-muted">OR</span>
+                            </div>
+                        {% endif %}
+                        
+                        <!-- Email Signup Form -->
+                        <form method="POST" action="{% url 'account_signup' %}">
+                            {% csrf_token %}
+                            
+                            {% if form.errors %}
+                                <div class="alert alert-danger" role="alert">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    {% for field in form %}
+                                        {% for error in field.errors %}
+                                            {{ error }}<br>
+                                        {% endfor %}
+                                    {% endfor %}
+                                    {% for error in form.non_field_errors %}
+                                        {{ error }}<br>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            
+                            <!-- Full Name Fields -->
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.first_name.id_for_label }}" class="form-label">First name</label>
+                                    {{ form.first_name }}
+                                    {% if form.first_name.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.first_name.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.last_name.id_for_label }}" class="form-label">Last name</label>
+                                    {{ form.last_name }}
+                                    {% if form.last_name.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.last_name.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <!-- Email Field -->
+                            <div class="mb-3">
+                                <label for="{{ form.email.id_for_label }}" class="form-label">Your email</label>
+                                {{ form.email }}
+                                {% if form.email.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.email.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Password Field -->
+                            <div class="mb-3">
+                                <label for="{{ form.password1.id_for_label }}" class="form-label">Password</label>
+                                <input type="password" 
+                                       class="form-control {% if form.password1.errors %}is-invalid{% endif %}" 
+                                       id="{{ form.password1.id_for_label }}" 
+                                       name="{{ form.password1.name }}"
+                                       placeholder="Please enter a valid password">
+                                {% if form.password1.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.password1.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Confirm Password Field -->
+                            <div class="mb-4">
+                                <label for="{{ form.password2.id_for_label }}" class="form-label">Confirm password</label>
+                                <input type="password" 
+                                       class="form-control {% if form.password2.errors %}is-invalid{% endif %}" 
+                                       id="{{ form.password2.id_for_label }}" 
+                                       name="{{ form.password2.name }}"
+                                       placeholder="Please confirm your password">
+                                {% if form.password2.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.password2.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Profile Fields -->
+                            <hr class="my-4">
+                            <h6 class="mb-3">Profile Information (Optional)</h6>
+                            
+                            <!-- Phone and Location -->
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.phone.id_for_label }}" class="form-label">Phone number</label>
+                                    {{ form.phone }}
+                                    {% if form.phone.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.phone.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.location.id_for_label }}" class="form-label">Location</label>
+                                    {{ form.location }}
+                                    {% if form.location.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.location.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <!-- Membership Tier -->
+                            <div class="mb-3">
+                                <label for="{{ form.membership_tier.id_for_label }}" class="form-label">Membership tier</label>
+                                {{ form.membership_tier }}
+                                {% if form.membership_tier.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.membership_tier.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Choose your membership level to unlock additional features.</div>
+                            </div>
+                            
+                            <!-- Account Type -->
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    {{ form.is_owner }}
+                                    <label class="form-check-label" for="{{ form.is_owner.id_for_label }}">
+                                        I want to list items for rent
+                                    </label>
+                                </div>
+                                <div class="form-text">Check this if you want to rent out your items to others.</div>
+                            </div>
+                            
+
+                            
+                            <!-- Terms and Conditions -->
+                            {% if form.terms %}
+                            <div class="mb-4">
+                                <div class="form-check">
+                                    <input class="form-check-input {% if form.terms.errors %}is-invalid{% endif %}" 
+                                           type="checkbox" 
+                                           id="id_terms" 
+                                           name="terms">
+                                    <label class="form-check-label" for="id_terms">
+                                        I accept the <a href="#" class="text-decoration-none">Terms and Conditions</a>
+                                    </label>
+                                    {% if form.terms.errors %}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.terms.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            <!-- Submit Button -->
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-user-plus me-2"></i>Create an account
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Sign In Link -->
+                <div class="text-center mt-4">
+                    <p class="mb-0">
+                        Already have an account? 
+                        <a href="{% url 'account_login' %}" class="text-decoration-none fw-bold">Sign in here</a>
+                    </p>
+                </div>
+                
+                <!-- Trusted By Section -->
+                <div class="text-center mt-5">
+                    <p class="text-muted small mb-3">Trusted by the world's best teams</p>
+                    <div class="d-flex justify-content-center gap-4">
+                        <div class="text-muted">
+                            <i class="fas fa-building fa-2x"></i>
+                        </div>
+                        <div class="text-muted">
+                            <i class="fas fa-rocket fa-2x"></i>
+                        </div>
+                        <div class="text-muted">
+                            <i class="fas fa-star fa-2x"></i>
+                        </div>
+                        <div class="text-muted">
+                            <i class="fas fa-heart fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

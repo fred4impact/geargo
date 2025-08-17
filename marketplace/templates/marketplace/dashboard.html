@@ -1,0 +1,328 @@
+{% extends 'marketplace/base.html' %}
+
+{% block title %}Dashboard - GearGo{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-1">
+                        {% if profile.is_owner %}
+                            <i class="fas fa-chart-line me-2"></i>Owner Dashboard
+                        {% else %}
+                            <i class="fas fa-user me-2"></i>My Dashboard
+                        {% endif %}
+                    </h1>
+                    <p class="text-muted mb-0">Welcome back, {{ user.first_name }}!</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-primary">
+                        <i class="fas fa-download me-2"></i>Export Report
+                    </button>
+                    <button class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>
+                        {% if profile.is_owner %}Add Item{% else %}Browse Items{% endif %}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats Cards -->
+    <div class="row mb-4">
+        {% for stat in quick_stats %}
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-2">{{ stat.title }}</h6>
+                            <h3 class="mb-1">{{ stat.value }}</h3>
+                            <small class="text-{% if stat.change_type == 'positive' %}success{% else %}danger{% endif %}">
+                                <i class="fas fa-{% if stat.change_type == 'positive' %}arrow-up{% else %}arrow-down{% endif %} me-1"></i>
+                                {{ stat.change }}
+                            </small>
+                        </div>
+                        <div class="avatar avatar-lg">
+                            <div class="avatar-initials bg-{{ stat.color }} text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                                <i class="{{ stat.icon }}"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- Recent Activity -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white border-0">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-history me-2"></i>Recent Activity
+                        </h5>
+                        <a href="{% url 'marketplace:booking_list' %}" class="btn btn-sm btn-outline-primary">View All</a>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    {% if recent_bookings %}
+                        <div class="list-group list-group-flush">
+                            {% for booking in recent_bookings %}
+                            <div class="list-group-item border-0 py-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar avatar-sm me-3">
+                                        {% if booking.item.images.first %}
+                                            <img src="{{ booking.item.images.first.image.url }}" class="rounded" alt="{{ booking.item.title }}" style="width: 40px; height: 40px; object-fit: cover;">
+                                        {% else %}
+                                            <div class="avatar-initials bg-secondary text-white rounded d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                <i class="fas fa-box"></i>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1">{{ booking.item.title }}</h6>
+                                        <p class="text-muted mb-0 small">
+                                            {{ booking.start_date|date:"M j, Y" }} - {{ booking.end_date|date:"M j, Y" }}
+                                        </p>
+                                    </div>
+                                    <div class="text-end">
+                                        <span class="badge bg-{% if booking.status == 'confirmed' %}success{% elif booking.status == 'pending' %}warning{% elif booking.status == 'active' %}info{% elif booking.status == 'completed' %}secondary{% else %}danger{% endif %}">
+                                            {{ booking.status|title }}
+                                        </span>
+                                        <div class="text-muted small">${{ booking.total_amount }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                            <h6 class="text-muted">No recent activity</h6>
+                            <p class="text-muted small">Start by {% if profile.is_owner %}listing an item{% else %}browsing items{% endif %}!</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Popular Items (for owners) or Favorite Categories (for renters) -->
+            {% if profile.is_owner and popular_items %}
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white border-0">
+                    <h5 class="mb-0">
+                        <i class="fas fa-star me-2"></i>Popular Items
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for item in popular_items %}
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                <div class="avatar avatar-sm me-3">
+                                    {% if item.images.first %}
+                                        <img src="{{ item.images.first.image.url }}" class="rounded" alt="{{ item.title }}" style="width: 40px; height: 40px; object-fit: cover;">
+                                    {% else %}
+                                        <div class="avatar-initials bg-secondary text-white rounded d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                            <i class="fas fa-box"></i>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">{{ item.title }}</h6>
+                                    <p class="text-muted mb-0 small">{{ item.booking_count }} bookings</p>
+                                </div>
+                                <div class="text-end">
+                                    <span class="fw-bold text-primary">${{ item.daily_price }}/day</span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% elif not profile.is_owner and favorite_categories %}
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white border-0">
+                    <h5 class="mb-0">
+                        <i class="fas fa-heart me-2"></i>Favorite Categories
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for category in favorite_categories %}
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                <div class="avatar avatar-sm me-3">
+                                    <div class="avatar-initials bg-primary text-white rounded d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                        <i class="{{ category.icon }}"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">{{ category.name }}</h6>
+                                    <p class="text-muted mb-0 small">{{ category.booking_count }} rentals</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Notifications -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white border-0">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-bell me-2"></i>Notifications
+                            {% if unread_count > 0 %}
+                                <span class="badge bg-danger ms-2">{{ unread_count }}</span>
+                            {% endif %}
+                        </h5>
+                        <button class="btn btn-sm btn-outline-secondary">Mark all read</button>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    {% if notifications %}
+                        <div class="list-group list-group-flush">
+                            {% for notification in notifications %}
+                            <div class="list-group-item border-0 py-3">
+                                <div class="d-flex align-items-start">
+                                    <div class="avatar avatar-sm me-3 mt-1">
+                                        <div class="avatar-initials bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                                            <i class="fas fa-info"></i>
+                                        </div>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1">{{ notification.title }}</h6>
+                                        <p class="text-muted mb-1 small">{{ notification.message|truncatewords:15 }}</p>
+                                        <small class="text-muted">{{ notification.created_at|timesince }} ago</small>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="card-footer bg-white border-0 text-center">
+                            <a href="#" class="btn btn-sm btn-outline-primary">View All Notifications</a>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-bell-slash fa-2x text-muted mb-2"></i>
+                            <p class="text-muted mb-0">No new notifications</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white border-0">
+                    <h5 class="mb-0">
+                        <i class="fas fa-bolt me-2"></i>Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        {% if profile.is_owner %}
+                            <a href="{% url 'marketplace:item_create' %}" class="btn btn-outline-primary">
+                                <i class="fas fa-plus me-2"></i>Add New Item
+                            </a>
+                            <a href="{% url 'marketplace:booking_list' %}" class="btn btn-outline-info">
+                                <i class="fas fa-calendar me-2"></i>View Rentals
+                            </a>
+                        {% else %}
+                            <a href="{% url 'marketplace:item_list' %}" class="btn btn-outline-primary">
+                                <i class="fas fa-search me-2"></i>Browse Items
+                            </a>
+                            <a href="{% url 'marketplace:booking_list' %}" class="btn btn-outline-info">
+                                <i class="fas fa-calendar me-2"></i>My Bookings
+                            </a>
+                        {% endif %}
+                        <a href="{% url 'marketplace:profile' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-user me-2"></i>Edit Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistics Summary -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-pie me-2"></i>Summary
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if profile.is_owner %}
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="small text-muted">Total Earnings</span>
+                                <span class="small fw-bold">${{ total_earnings|floatformat:2 }}</span>
+                            </div>
+                            <div class="progress" style="height: 6px;">
+                                <div class="progress-bar bg-success" style="width: 75%"></div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="small text-muted">Active Items</span>
+                                <span class="small fw-bold">{{ active_items }}/{{ total_items }}</span>
+                            </div>
+                            <div class="progress" style="height: 6px;">
+                                <div class="progress-bar bg-primary" style="width: {% if total_items > 0 %}{% widthratio active_items total_items 100 %}%{% else %}0%{% endif %}"></div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="small text-muted">Completion Rate</span>
+                                <span class="small fw-bold">{% if total_bookings > 0 %}{% widthratio completed_bookings total_bookings 100 %}%{% else %}0%{% endif %}</span>
+                            </div>
+                            <div class="progress" style="height: 6px;">
+                                <div class="progress-bar bg-warning" style="width: {% if total_bookings > 0 %}{% widthratio completed_bookings total_bookings 100 %}%{% else %}0%{% endif %}"></div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="small text-muted">Total Spent</span>
+                                <span class="small fw-bold">${{ total_spent|floatformat:2 }}</span>
+                            </div>
+                            <div class="progress" style="height: 6px;">
+                                <div class="progress-bar bg-info" style="width: 60%"></div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="small text-muted">Completed Rentals</span>
+                                <span class="small fw-bold">{{ completed_bookings }}/{{ total_bookings }}</span>
+                            </div>
+                            <div class="progress" style="height: 6px;">
+                                <div class="progress-bar bg-success" style="width: {% if total_bookings > 0 %}{% widthratio completed_bookings total_bookings 100 %}%{% else %}0%{% endif %}"></div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="small text-muted">Upcoming Rentals</span>
+                                <span class="small fw-bold">{{ upcoming_bookings }}</span>
+                            </div>
+                            <div class="progress" style="height: 6px;">
+                                <div class="progress-bar bg-warning" style="width: 40%"></div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

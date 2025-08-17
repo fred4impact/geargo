@@ -1,0 +1,134 @@
+{% extends 'marketplace/base.html' %}
+
+{% block title %}Categories - GearGo{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h2 mb-2">
+                <i class="fas fa-tags me-2"></i>Browse Categories
+            </h1>
+            <p class="text-muted">Explore different types of items available for rent</p>
+        </div>
+    </div>
+
+    <!-- Categories Grid -->
+    <div class="row">
+        {% for category in categories %}
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center p-4">
+                    <div class="avatar avatar-lg mb-3">
+                        <div class="avatar-initials bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto" style="width: 80px; height: 80px; font-size: 2rem;">
+                            <i class="{{ category.icon|default:'fas fa-tag' }}"></i>
+                        </div>
+                    </div>
+                    <h4 class="mb-2">{{ category.name }}</h4>
+                    <p class="text-muted mb-3">{{ category.description|default:"Explore amazing items in this category" }}</p>
+                    <a href="{% url 'marketplace:category_detail' category.id %}" class="btn btn-primary">
+                        <i class="fas fa-arrow-right me-2"></i>Browse Items
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="text-center py-5">
+                <i class="fas fa-tags fa-3x text-muted mb-3"></i>
+                <h4 class="text-muted">No categories available</h4>
+                <p class="text-muted mb-4">Categories will be added soon!</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Featured Categories Section -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <h3 class="mb-4">
+                <i class="fas fa-star me-2"></i>Featured Categories
+            </h3>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="avatar avatar-lg me-3">
+                            <div class="avatar-initials bg-success text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                <i class="fas fa-bicycle"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h5 class="mb-1">Bikes & Cycling</h5>
+                            <p class="text-muted mb-2">Mountain bikes, road bikes, and cycling gear</p>
+                            <a href="#" class="btn btn-sm btn-outline-success">Explore</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="avatar avatar-lg me-3">
+                            <div class="avatar-initials bg-warning text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                <i class="fas fa-music"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h5 class="mb-1">Musical Instruments</h5>
+                            <p class="text-muted mb-2">Guitars, pianos, drums, and more</p>
+                            <a href="#" class="btn btn-sm btn-outline-warning">Explore</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="avatar avatar-lg me-3">
+                            <div class="avatar-initials bg-info text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                <i class="fas fa-volume-up"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h5 class="mb-1">Sound Equipment</h5>
+                            <p class="text-muted mb-2">Speakers, microphones, and audio gear</p>
+                            <a href="#" class="btn btn-sm btn-outline-info">Explore</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="avatar avatar-lg me-3">
+                            <div class="avatar-initials bg-danger text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                <i class="fas fa-camera"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h5 class="mb-1">Photography</h5>
+                            <p class="text-muted mb-2">Cameras, lenses, and photography gear</p>
+                            <a href="#" class="btn btn-sm btn-outline-danger">Explore</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

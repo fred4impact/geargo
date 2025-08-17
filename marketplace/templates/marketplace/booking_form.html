@@ -1,0 +1,172 @@
+{% extends 'marketplace/base.html' %}
+
+{% block title %}Book {{ item.title }} - GearGo{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">
+                        <i class="fas fa-calendar-check me-2"></i>Book Item
+                    </h3>
+                </div>
+                <div class="card-body p-4">
+                    <!-- Item Summary -->
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            {% if item.images.first %}
+                                <img src="{{ item.images.first.image.url }}" class="img-fluid rounded" alt="{{ item.title }}">
+                            {% else %}
+                                <div class="bg-secondary rounded d-flex align-items-center justify-content-center" style="height: 200px;">
+                                    <i class="fas fa-image fa-3x text-white"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-8">
+                            <h4 class="fw-bold">{{ item.title }}</h4>
+                            <p class="text-muted mb-2">{{ item.description|truncatewords:30 }}</p>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge bg-primary">{{ item.category.name }}</span>
+                                <span class="badge bg-{% if item.condition == 'excellent' %}success{% elif item.condition == 'good' %}info{% elif item.condition == 'fair' %}warning{% else %}secondary{% endif %}">
+                                    {{ item.condition|title }} Condition
+                                </span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fw-bold text-primary fs-4">${{ item.daily_price }}/day</span>
+                                <small class="text-muted">
+                                    <i class="fas fa-map-marker-alt me-1"></i>{{ item.location }}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <!-- Booking Form -->
+                    <form method="post" id="booking-form">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.start_date.id_for_label }}" class="form-label fw-bold">
+                                    <i class="fas fa-calendar-plus me-2"></i>Start Date
+                                </label>
+                                {{ form.start_date }}
+                                {% if form.start_date.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.start_date.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.end_date.id_for_label }}" class="form-label fw-bold">
+                                    <i class="fas fa-calendar-minus me-2"></i>End Date
+                                </label>
+                                {{ form.end_date }}
+                                {% if form.end_date.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.end_date.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Booking Summary -->
+                        <div class="card bg-light border-0 mb-4">
+                            <div class="card-body">
+                                <h5 class="fw-bold mb-3">Booking Summary</h5>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p class="mb-1"><strong>Daily Rate:</strong></p>
+                                        <p class="mb-1"><strong>Duration:</strong></p>
+                                        <p class="mb-1"><strong>Total Amount:</strong></p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p class="mb-1">${{ item.daily_price }}</p>
+                                        <p class="mb-1"><span id="duration-days">-</span> days</p>
+                                        <p class="mb-1"><span id="total-amount" class="fw-bold text-primary">$0.00</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Terms and Conditions -->
+                        <div class="form-check mb-4">
+                            <input class="form-check-input" type="checkbox" id="terms-check" required>
+                            <label class="form-check-label" for="terms-check">
+                                I agree to the <a href="#" class="text-primary">Terms and Conditions</a> and 
+                                <a href="#" class="text-primary">Rental Agreement</a>
+                            </label>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-flex gap-3">
+                            <a href="{% url 'marketplace:item_detail' item.id %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Item
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-lg flex-grow-1" id="book-btn" disabled>
+                                <i class="fas fa-credit-card me-2"></i>Proceed to Payment
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const startDateInput = document.getElementById('{{ form.start_date.id_for_label }}');
+    const endDateInput = document.getElementById('{{ form.end_date.id_for_label }}');
+    const durationDays = document.getElementById('duration-days');
+    const totalAmount = document.getElementById('total-amount');
+    const termsCheck = document.getElementById('terms-check');
+    const bookBtn = document.getElementById('book-btn');
+    const dailyPrice = {{ item.daily_price }};
+
+    function updateBookingSummary() {
+        const startDate = new Date(startDateInput.value);
+        const endDate = new Date(endDateInput.value);
+        
+        if (startDate && endDate && endDate > startDate) {
+            const diffTime = Math.abs(endDate - startDate);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            const total = diffDays * dailyPrice;
+            
+            durationDays.textContent = diffDays;
+            totalAmount.textContent = '$' + total.toFixed(2);
+        } else {
+            durationDays.textContent = '-';
+            totalAmount.textContent = '$0.00';
+        }
+        
+        updateBookButton();
+    }
+
+    function updateBookButton() {
+        const hasValidDates = startDateInput.value && endDateInput.value && 
+                             new Date(endDateInput.value) > new Date(startDateInput.value);
+        const hasAcceptedTerms = termsCheck.checked;
+        
+        bookBtn.disabled = !(hasValidDates && hasAcceptedTerms);
+    }
+
+    startDateInput.addEventListener('change', updateBookingSummary);
+    endDateInput.addEventListener('change', updateBookingSummary);
+    termsCheck.addEventListener('change', updateBookButton);
+
+    // Set minimum date to today
+    const today = new Date().toISOString().split('T')[0];
+    startDateInput.min = today;
+    endDateInput.min = today;
+});
+</script>
+{% endblock %}

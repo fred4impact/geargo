@@ -1,0 +1,247 @@
+{% extends 'marketplace/base.html' %}
+
+{% block title %}GearGo - AI-Powered Rental Marketplace{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container position-relative">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-3 fw-bold mb-4">Rent Gear with AI-Powered Intelligence</h1>
+                <p class="lead mb-4 fs-5">Discover bikes, instruments, and sound equipment from trusted owners. Our AI helps you find the perfect rental and ensures safe transactions.</p>
+                <div class="d-flex gap-3 flex-wrap">
+                    <a href="{% url 'marketplace:item_list' %}" class="btn btn-light btn-lg px-4 py-3">
+                        <i class="fas fa-search me-2"></i>Browse Items
+                    </a>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'marketplace:item_create' %}" class="btn btn-outline-light btn-lg px-4 py-3">
+                            <i class="fas fa-plus me-2"></i>List Your Gear
+                        </a>
+                    {% else %}
+                        <a href="{% url 'account_signup' %}" class="btn btn-outline-light btn-lg px-4 py-3">
+                            <i class="fas fa-rocket me-2"></i>Get Started
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-lg-6 text-center">
+                <div class="position-relative">
+                    <div class="bg-white bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 300px; height: 300px;">
+                        <i class="fas fa-cogs fa-6x text-white"></i>
+                    </div>
+                    <div class="position-absolute top-0 start-0 bg-success bg-opacity-75 rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px; transform: translate(-20px, -20px);">
+                        <i class="fas fa-robot fa-2x text-white"></i>
+                    </div>
+                    <div class="position-absolute bottom-0 end-0 bg-warning bg-opacity-75 rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 60px; height: 60px; transform: translate(20px, 20px);">
+                        <i class="fas fa-shield-alt fa-lg text-white"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Categories Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold mb-3">Browse by Category</h2>
+            <p class="text-muted fs-5">Find the perfect gear for your needs</p>
+        </div>
+        <div class="row">
+            {% for category in categories %}
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card text-center h-100 border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
+                            {% if category.name == 'Bikes' %}
+                                <i class="fas fa-bicycle fa-2x text-primary"></i>
+                            {% elif category.name == 'Instruments' %}
+                                <i class="fas fa-music fa-2x text-primary"></i>
+                            {% elif category.name == 'Sound Equipment' %}
+                                <i class="fas fa-volume-up fa-2x text-primary"></i>
+                            {% else %}
+                                <i class="fas fa-box fa-2x text-primary"></i>
+                            {% endif %}
+                        </div>
+                        <h5 class="card-title fw-bold mb-3">{{ category.name }}</h5>
+                        <p class="card-text text-muted mb-4">{{ category.description|default:"Explore amazing items in this category." }}</p>
+                        <a href="{% url 'marketplace:category_detail' category.id %}" class="btn btn-primary">
+                            <i class="fas fa-arrow-right me-2"></i>Browse {{ category.name }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center">
+                <div class="py-5">
+                    <i class="fas fa-tags fa-3x text-muted mb-3"></i>
+                    <p class="text-muted fs-5">No categories available yet.</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- AI-Powered Recommendations Section -->
+{% if recommended_items %}
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold mb-3">
+                <i class="fas fa-robot text-primary me-2"></i>
+                {% if user.is_authenticated %}
+                    Recommended for You
+                {% else %}
+                    Popular Items
+                {% endif %}
+            </h2>
+            <p class="text-muted fs-5">
+                {% if user.is_authenticated %}
+                    Personalized recommendations based on your preferences and rental history
+                {% else %}
+                    Most popular items on our platform
+                {% endif %}
+            </p>
+        </div>
+        <div class="row">
+            {% for item in recommended_items %}
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card h-100 border-0 shadow-sm border-primary border-2">
+                    {% if item.images.first %}
+                        <img src="{{ item.images.first.image.url }}" class="card-img-top" alt="{{ item.title }}" style="height: 220px; object-fit: cover;">
+                    {% else %}
+                        <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 220px;">
+                            <i class="fas fa-image fa-3x text-white"></i>
+                        </div>
+                    {% endif %}
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="badge bg-primary">{{ item.category.name }}</span>
+                            <span class="badge bg-{% if item.condition == 'excellent' %}success{% elif item.condition == 'good' %}info{% elif item.condition == 'fair' %}warning{% else %}secondary{% endif %}">
+                                {{ item.condition|title }}
+                            </span>
+                        </div>
+                        <h5 class="card-title fw-bold mb-2">{{ item.title }}</h5>
+                        <p class="card-text text-muted mb-3">{{ item.description|truncatewords:15 }}</p>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="fw-bold text-primary fs-5">${{ item.daily_price }}/day</span>
+                            <small class="text-muted">
+                                <i class="fas fa-map-marker-alt me-1"></i>{{ item.location }}
+                            </small>
+                        </div>
+                        <a href="{% url 'marketplace:item_detail' item.id %}" class="btn btn-primary w-100">
+                            <i class="fas fa-eye me-2"></i>View Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Featured Items Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold mb-3">Featured Items</h2>
+            <p class="text-muted fs-5">Discover the most popular rentals on our platform</p>
+        </div>
+        <div class="row">
+            {% for item in featured_items %}
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    {% if item.images.first %}
+                        <img src="{{ item.images.first.image.url }}" class="card-img-top" alt="{{ item.title }}" style="height: 220px; object-fit: cover;">
+                    {% else %}
+                        <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 220px;">
+                            <i class="fas fa-image fa-3x text-white"></i>
+                        </div>
+                    {% endif %}
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="badge bg-primary">{{ item.category.name }}</span>
+                            <span class="badge bg-{% if item.condition == 'excellent' %}success{% elif item.condition == 'good' %}info{% elif item.condition == 'fair' %}warning{% else %}secondary{% endif %}">
+                                {{ item.condition|title }}
+                            </span>
+                        </div>
+                        <h5 class="card-title fw-bold mb-2">{{ item.title }}</h5>
+                        <p class="card-text text-muted mb-3">{{ item.description|truncatewords:15 }}</p>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="fw-bold text-primary fs-5">${{ item.daily_price }}/day</span>
+                            <small class="text-muted">
+                                <i class="fas fa-map-marker-alt me-1"></i>{{ item.location }}
+                            </small>
+                        </div>
+                        <a href="{% url 'marketplace:item_detail' item.id %}" class="btn btn-primary w-100">
+                            <i class="fas fa-eye me-2"></i>View Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center">
+                <div class="py-5">
+                    <i class="fas fa-star fa-3x text-muted mb-3"></i>
+                    <p class="text-muted fs-5 mb-4">No featured items available yet.</p>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'marketplace:item_create' %}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-plus me-2"></i>List Your First Item
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold mb-3">Why Choose GearGo?</h2>
+            <p class="text-muted fs-5">Experience the future of gear rental with our advanced features</p>
+        </div>
+        <div class="row">
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center p-4">
+                        <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
+                            <i class="fas fa-robot fa-2x text-primary"></i>
+                        </div>
+                        <h5 class="fw-bold mb-3">AI-Powered Matching</h5>
+                        <p class="text-muted">Our intelligent system helps you find the perfect gear based on your preferences and rental history.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center p-4">
+                        <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
+                            <i class="fas fa-shield-alt fa-2x text-success"></i>
+                        </div>
+                        <h5 class="fw-bold mb-3">Secure Transactions</h5>
+                        <p class="text-muted">Safe and secure payment processing with built-in fraud detection and comprehensive damage protection.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center p-4">
+                        <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
+                            <i class="fas fa-star fa-2x text-warning"></i>
+                        </div>
+                        <h5 class="fw-bold mb-3">Trusted Community</h5>
+                        <p class="text-muted">Join a community of verified owners and renters with transparent ratings and detailed reviews.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
