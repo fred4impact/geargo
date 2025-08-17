@@ -20,12 +20,14 @@
     <!-- Thomann-Inspired Dark Theme Styles -->
     <style>
         :root {
-            --primary-color: #3C04FB;
-            --primary-dark: #2E03C7;
-            --accent-color: #C3FB04;
-            --accent-dark: #A8D904;
+            --primary-color: #3EC5EB;
+            --primary-dark: #2BA8C7;
+            --primary-light: #87D4F0;
+            --accent-color: #3EC5EB;
+            --accent-dark: #2BA8C7;
+            --accent-light: #87D4F0;
             --secondary-color: #6c757d;
-            --success-color: #C3FB04;
+            --success-color: #3EC5EB;
             --warning-color: #ffc107;
             --danger-color: #dc3545;
             --info-color: #17a2b8;
@@ -35,9 +37,9 @@
             --text-color: #333333;
             --bg-color: #ffffff;
             --card-bg: #ffffff;
-            --shadow-sm: 0 0.125rem 0.25rem rgba(60, 4, 251, 0.075);
-            --shadow: 0 0.5rem 1rem rgba(60, 4, 251, 0.15);
-            --shadow-lg: 0 1rem 3rem rgba(60, 4, 251, 0.175);
+            --shadow-sm: 0 0.125rem 0.25rem rgba(62, 197, 235, 0.075);
+            --shadow: 0 0.5rem 1rem rgba(62, 197, 235, 0.15);
+            --shadow-lg: 0 1rem 3rem rgba(62, 197, 235, 0.175);
         }
         
         * {
@@ -262,6 +264,125 @@
             border-color: var(--accent-color);
             transform: translateY(-1px);
             color: var(--dark-color);
+        }
+        
+        /* Blue gradient color utilities */
+        .text-blue-dark {
+            color: var(--primary-dark) !important;
+        }
+        
+        .text-blue-medium {
+            color: var(--primary-color) !important;
+        }
+        
+        .text-blue-light {
+            color: var(--primary-light) !important;
+        }
+        
+        .bg-blue-dark {
+            background-color: var(--primary-dark) !important;
+        }
+        
+        .bg-blue-medium {
+            background-color: var(--primary-color) !important;
+        }
+        
+        .bg-blue-light {
+            background-color: var(--primary-light) !important;
+        }
+        
+        .border-blue-dark {
+            border-color: var(--primary-dark) !important;
+        }
+        
+        .border-blue-medium {
+            border-color: var(--primary-color) !important;
+        }
+        
+        .border-blue-light {
+            border-color: var(--primary-light) !important;
+        }
+        
+        /* Button variations with blue gradient */
+        .btn-blue-dark {
+            background: var(--primary-dark);
+            border: none;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .btn-blue-dark:hover {
+            background: var(--primary-color);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+            color: white;
+        }
+        
+        .btn-blue-medium {
+            background: var(--primary-color);
+            border: none;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .btn-blue-medium:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+            color: white;
+        }
+        
+        .btn-blue-light {
+            background: var(--primary-light);
+            border: none;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .btn-blue-light:hover {
+            background: var(--primary-color);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+            color: white;
+        }
+        
+        .btn-outline-blue-dark {
+            color: var(--primary-dark);
+            border: 2px solid var(--primary-dark);
+            background: transparent;
+        }
+        
+        .btn-outline-blue-dark:hover {
+            background: var(--primary-dark);
+            border-color: var(--primary-dark);
+            transform: translateY(-1px);
+            color: white;
+        }
+        
+        .btn-outline-blue-medium {
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+            background: transparent;
+        }
+        
+        .btn-outline-blue-medium:hover {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            transform: translateY(-1px);
+            color: white;
+        }
+        
+        .btn-outline-blue-light {
+            color: var(--primary-light);
+            border: 2px solid var(--primary-light);
+            background: transparent;
+        }
+        
+        .btn-outline-blue-light:hover {
+            background: var(--primary-light);
+            border-color: var(--primary-light);
+            transform: translateY(-1px);
+            color: white;
         }
         
         /* Avatar */

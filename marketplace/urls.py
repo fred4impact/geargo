@@ -26,4 +26,14 @@ urlpatterns = [
     path('categories/', views.category_list, name='category_list'),
     path('categories/<int:category_id>/', views.category_detail, name='category_detail'),
     path('dashboard/', views.dashboard, name='dashboard'),
+    
+    # Service URLs
+    path('services/', views.service_list, name='service_list'),
+    path('services/<uuid:service_id>/', views.service_detail, name='service_detail'),
+    path('services/create/', views.service_create, name='service_create'),
+    path('services/<uuid:service_id>/edit/', views.service_edit, name='service_edit'),
+    path('services/<uuid:service_id>/book/', views.service_booking_create, name='service_booking_create'),
+    path('service-bookings/', views.service_booking_list, name='service_booking_list'),
+    path('service-bookings/<uuid:booking_id>/', views.service_booking_detail, name='service_booking_detail'),
+    path('service-bookings/<uuid:booking_id>/review/', views.service_review_create, name='service_review_create'),
 ]

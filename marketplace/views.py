@@ -6,13 +6,13 @@ from django.core.paginator import Paginator
 from django.utils import timezone
 from django.db.models import Count, Sum, Q
 from datetime import datetime, timedelta
-from .models import Item, Category, Booking, Profile, Review
-from .forms import ItemForm, BookingForm, ProfileForm, UserForm
+from .models import Item, Category, Booking, Profile, Review, Service, ServiceCategory, ServiceBooking, ServiceReview
+from .forms import ItemForm, BookingForm, ProfileForm, UserForm, ServiceForm, ServiceBookingForm, ServiceReviewForm
 from notifications.models import Notification
 from notifications.services import EmailNotificationService
 # Import AI services with fallback
 try:
-    from .ai_services import recommendation_engine, smart_pricing_engine
+    from .ai_services import recommendation_engine, smart_pricing_engine, ai_features
     AI_AVAILABLE = True
 except ImportError:
     # Fallback to simple AI services
@@ -20,35 +20,29 @@ except ImportError:
         from .simple_ai import simple_recommendation_engine, simple_smart_pricing_engine
         recommendation_engine = simple_recommendation_engine
         smart_pricing_engine = simple_smart_pricing_engine
+        ai_features = None
         AI_AVAILABLE = True
     except ImportError:
         AI_AVAILABLE = False
         recommendation_engine = None
         smart_pricing_engine = None
+        ai_features = None
 
 
 def home(request):
-    """Home page view with AI recommendations"""
+    """Home page view with simplified AI recommendations"""
     # Get AI-powered recommendations if available
     if AI_AVAILABLE and recommendation_engine:
         if request.user.is_authenticated:
             recommended_items = recommendation_engine.get_personalized_recommendations(request.user, limit=6)
-            trending_categories = recommendation_engine.get_trending_categories(limit=3)
         else:
             recommended_items = recommendation_engine.get_popular_items(limit=6)
-            trending_categories = Category.objects.all()[:3]
     else:
-        # Fallback to basic recommendations
+        # Fallback to basic recommendations - get 6 items from all categories
         recommended_items = Item.objects.filter(availability_status='available').order_by('-created_at')[:6]
-        trending_categories = Category.objects.all()[:3]
-    
-    # Get featured items (newest available)
-    featured_items = Item.objects.filter(availability_status='available').order_by('-created_at')[:6]
     
     context = {
-        'featured_items': featured_items,
         'recommended_items': recommended_items,
-        'trending_categories': trending_categories,
         'categories': Category.objects.all(),
         'ai_available': AI_AVAILABLE,
     }
@@ -73,6 +67,28 @@ def item_list(request):
     paginator = Paginator(items, 12)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
+    
+    # Handle AJAX requests for infinite scroll
+    if request.GET.get('ajax') == '1':
+        items_data = []
+        for item in page_obj:
+            item_data = {
+                'id': str(item.id),
+                'title': item.title,
+                'description': item.description[:100] + '...' if len(item.description) > 100 else item.description,
+                'daily_price': str(item.daily_price),
+                'condition': item.condition,
+                'location': item.location,
+                'category_name': item.category.name,
+                'image_url': item.images.first().image.url if item.images.first() else None,
+            }
+            items_data.append(item_data)
+        
+        return JsonResponse({
+            'items': items_data,
+            'has_next': page_obj.has_next(),
+            'current_page': page_obj.number,
+        })
     
     categories = Category.objects.all()
     
@@ -524,3 +540,231 @@ def dashboard(request):
         })
     
     return render(request, 'marketplace/dashboard.html', context)
+
+
+# Service Views
+def service_list(request):
+    """List all available services with filtering"""
+    services = Service.objects.filter(available=True)
+    
+    # Filter by category
+    category_id = request.GET.get('category')
+    if category_id:
+        services = services.filter(category_id=category_id)
+    
+    # Filter by location
+    location = request.GET.get('location')
+    if location:
+        services = services.filter(location__icontains=location)
+    
+    # Filter by price range
+    min_price = request.GET.get('min_price')
+    max_price = request.GET.get('max_price')
+    if min_price:
+        services = services.filter(hourly_rate__gte=min_price)
+    if max_price:
+        services = services.filter(hourly_rate__lte=max_price)
+    
+    # Search
+    search_query = request.GET.get('search')
+    if search_query:
+        services = services.filter(
+            Q(title__icontains=search_query) |
+            Q(description__icontains=search_query) |
+            Q(provider__user__first_name__icontains=search_query) |
+            Q(provider__user__last_name__icontains=search_query)
+        )
+    
+    # Pagination
+    paginator = Paginator(services, 12)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    # Get categories for filter
+    categories = ServiceCategory.objects.all()
+    
+    context = {
+        'services': page_obj,
+        'categories': categories,
+        'search_query': search_query,
+        'selected_category': category_id,
+    }
+    return render(request, 'marketplace/service_list.html', context)
+
+
+def service_detail(request, service_id):
+    """Detail view for a specific service"""
+    service = get_object_or_404(Service, id=service_id)
+    
+    # Get AI-powered similar services if available
+    if AI_AVAILABLE and recommendation_engine:
+        similar_services = recommendation_engine.get_similar_services(service, limit=4)
+        if not similar_services:
+            similar_services = Service.objects.filter(category=service.category).exclude(id=service.id)[:4]
+    else:
+        similar_services = Service.objects.filter(category=service.category).exclude(id=service.id)[:4]
+    
+    context = {
+        'service': service,
+        'similar_services': similar_services,
+        'ai_available': AI_AVAILABLE,
+    }
+    return render(request, 'marketplace/service_detail.html', context)
+
+
+@login_required
+def service_create(request):
+    """Create a new service"""
+    if request.method == 'POST':
+        form = ServiceForm(request.POST)
+        if form.is_valid():
+            service = form.save(commit=False)
+            service.provider = request.user.profile
+            service.save()
+            messages.success(request, 'Service created successfully!')
+            return redirect('marketplace:service_detail', service_id=service.id)
+    else:
+        form = ServiceForm()
+    
+    context = {
+        'form': form,
+        'title': 'Create New Service',
+    }
+    return render(request, 'marketplace/service_form.html', context)
+
+
+@login_required
+def service_edit(request, service_id):
+    """Edit an existing service"""
+    service = get_object_or_404(Service, id=service_id, provider=request.user.profile)
+    
+    if request.method == 'POST':
+        form = ServiceForm(request.POST, instance=service)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Service updated successfully!')
+            return redirect('marketplace:service_detail', service_id=service.id)
+    else:
+        form = ServiceForm(instance=service)
+    
+    context = {
+        'form': form,
+        'service': service,
+        'title': 'Edit Service',
+    }
+    return render(request, 'marketplace/service_form.html', context)
+
+
+@login_required
+def service_booking_create(request, service_id):
+    """Create a booking for a service"""
+    service = get_object_or_404(Service, id=service_id, available=True)
+    
+    if request.method == 'POST':
+        form = ServiceBookingForm(request.POST)
+        if form.is_valid():
+            booking = form.save(commit=False)
+            booking.service = service
+            booking.customer = request.user.profile
+            
+            # Calculate total hours and cost
+            duration = booking.end_time - booking.start_time
+            booking.total_hours = duration.total_seconds() / 3600
+            booking.total_cost = booking.total_hours * service.hourly_rate
+            
+            booking.save()
+            
+            # Send email notification
+            EmailNotificationService.send_service_booking_confirmation(booking)
+            
+            messages.success(request, 'Service booking created successfully!')
+            return redirect('marketplace:service_booking_detail', booking_id=booking.id)
+    else:
+        form = ServiceBookingForm()
+    
+    context = {
+        'form': form,
+        'service': service,
+        'title': 'Book Service',
+    }
+    return render(request, 'marketplace/service_booking_form.html', context)
+
+
+@login_required
+def service_booking_list(request):
+    """List user's service bookings"""
+    if request.user.profile.services_offered.exists():
+        # Show bookings for services provided by the user
+        bookings = ServiceBooking.objects.filter(service__provider=request.user.profile)
+    else:
+        # Show bookings made by the user
+        bookings = ServiceBooking.objects.filter(customer=request.user.profile)
+    
+    # Filter by status
+    status = request.GET.get('status')
+    if status:
+        bookings = bookings.filter(status=status)
+    
+    # Pagination
+    paginator = Paginator(bookings.order_by('-created_at'), 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'bookings': page_obj,
+        'is_provider': request.user.profile.services_offered.exists(),
+        'status_filter': status,
+    }
+    return render(request, 'marketplace/service_booking_list.html', context)
+
+
+def service_booking_detail(request, booking_id):
+    """Detail view for a service booking"""
+    booking = get_object_or_404(ServiceBooking, id=booking_id)
+    
+    # Check if user has permission to view this booking
+    if not (request.user.profile == booking.customer or request.user.profile == booking.service.provider):
+        messages.error(request, 'You do not have permission to view this booking.')
+        return redirect('marketplace:service_booking_list')
+    
+    context = {
+        'booking': booking,
+        'can_review': (request.user.profile == booking.customer and 
+                      booking.status == 'completed' and 
+                      not booking.reviews.exists()),
+    }
+    return render(request, 'marketplace/service_booking_detail.html', context)
+
+
+@login_required
+def service_review_create(request, booking_id):
+    """Create a review for a completed service booking"""
+    booking = get_object_or_404(ServiceBooking, id=booking_id, customer=request.user.profile)
+    
+    if booking.status != 'completed':
+        messages.error(request, 'You can only review completed services.')
+        return redirect('marketplace:service_booking_detail', booking_id=booking.id)
+    
+    if booking.reviews.exists():
+        messages.error(request, 'You have already reviewed this service.')
+        return redirect('marketplace:service_booking_detail', booking_id=booking.id)
+    
+    if request.method == 'POST':
+        form = ServiceReviewForm(request.POST)
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.service = booking.service
+            review.customer = request.user.profile
+            review.booking = booking
+            review.save()
+            messages.success(request, 'Review submitted successfully!')
+            return redirect('marketplace:service_booking_detail', booking_id=booking.id)
+    else:
+        form = ServiceReviewForm()
+    
+    context = {
+        'form': form,
+        'booking': booking,
+        'title': 'Review Service',
+    }
+    return render(request, 'marketplace/service_review_form.html', context)
