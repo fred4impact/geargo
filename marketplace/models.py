@@ -166,3 +166,100 @@ class Review(models.Model):
     
     def __str__(self):
         return f"Review by {self.reviewer.user.email} - {self.rating} stars"
+
+
+class ServiceCategory(models.Model):
+    """Categories for services offered by tech experts"""
+    name = models.CharField(max_length=100)
+    description = models.TextField(blank=True)
+    icon = models.CharField(max_length=50, default='fas fa-tools')  # Font Awesome icon
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return self.name
+    
+    class Meta:
+        verbose_name_plural = "Service Categories"
+
+
+class Service(models.Model):
+    """Services offered by tech experts"""
+    provider = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='services_offered')
+    category = models.ForeignKey(ServiceCategory, on_delete=models.CASCADE, related_name='services')
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    hourly_rate = models.DecimalField(max_digits=8, decimal_places=2)
+    available = models.BooleanField(default=True)
+    location = models.CharField(max_length=200)
+    experience_years = models.PositiveIntegerField(default=1)
+    certifications = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"{self.title} by {self.provider.user.email}"
+    
+    @property
+    def average_rating(self):
+        """Calculate average rating from service reviews"""
+        reviews = self.service_reviews.all()
+        if reviews:
+            return sum(review.rating for review in reviews) / len(reviews)
+        return 0
+    
+    @property
+    def total_reviews(self):
+        """Get total number of reviews"""
+        return self.service_reviews.count()
+
+
+class ServiceBooking(models.Model):
+    """Bookings for services"""
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('confirmed', 'Confirmed'),
+        ('in_progress', 'In Progress'),
+        ('completed', 'Completed'),
+        ('cancelled', 'Cancelled'),
+    ]
+    
+    service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name='bookings')
+    customer = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='service_bookings')
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField()
+    total_hours = models.DecimalField(max_digits=5, decimal_places=2)
+    total_cost = models.DecimalField(max_digits=10, decimal_places=2)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    notes = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"{self.service.title} - {self.customer.user.email} ({self.start_time.date()})"
+    
+    def save(self, *args, **kwargs):
+        # Calculate total hours and cost if not set
+        if not self.total_hours:
+            duration = self.end_time - self.start_time
+            self.total_hours = duration.total_seconds() / 3600  # Convert to hours
+        
+        if not self.total_cost:
+            self.total_cost = self.total_hours * self.service.hourly_rate
+        
+        super().save(*args, **kwargs)
+
+
+class ServiceReview(models.Model):
+    """Reviews for services"""
+    service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name='service_reviews')
+    customer = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='service_reviews_given')
+    booking = models.ForeignKey(ServiceBooking, on_delete=models.CASCADE, related_name='reviews')
+    rating = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
+    comment = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ['service', 'booking']
+    
+    def __str__(self):
+        return f"Review for {self.service.title} - {self.rating} stars"

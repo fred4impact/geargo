@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-from .models import Item, Booking, Profile, Category
+from .models import Item, Booking, Profile, Category, Service, ServiceCategory, ServiceBooking, ServiceReview
 from django.utils import timezone
 
 
@@ -185,4 +185,72 @@ class UserForm(forms.ModelForm):
             'first_name': forms.TextInput(attrs={'class': 'form-control'}),
             'last_name': forms.TextInput(attrs={'class': 'form-control'}),
             'email': forms.EmailInput(attrs={'class': 'form-control'}),
+        }
+
+
+class ServiceForm(forms.ModelForm):
+    """Form for creating and editing services"""
+    
+    class Meta:
+        model = Service
+        fields = ['category', 'title', 'description', 'hourly_rate', 'location', 'experience_years', 'certifications']
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
+            'hourly_rate': forms.NumberInput(attrs={'class': 'form-control', 'min': '0', 'step': '0.01'}),
+            'location': forms.TextInput(attrs={'class': 'form-control'}),
+            'experience_years': forms.NumberInput(attrs={'class': 'form-control', 'min': '1'}),
+            'certifications': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'category': forms.Select(attrs={'class': 'form-control'}),
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['category'].queryset = ServiceCategory.objects.all()
+
+
+class ServiceBookingForm(forms.ModelForm):
+    """Form for booking services"""
+    
+    class Meta:
+        model = ServiceBooking
+        fields = ['start_time', 'end_time', 'notes']
+        widgets = {
+            'start_time': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
+            'end_time': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
+            'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+        }
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        start_time = cleaned_data.get('start_time')
+        end_time = cleaned_data.get('end_time')
+        
+        if start_time and end_time:
+            if start_time < timezone.now():
+                raise forms.ValidationError("Start time cannot be in the past.")
+            
+            if end_time <= start_time:
+                raise forms.ValidationError("End time must be after start time.")
+            
+            # Check if booking duration is reasonable (minimum 1 hour, maximum 24 hours)
+            duration = end_time - start_time
+            if duration.total_seconds() < 3600:  # Less than 1 hour
+                raise forms.ValidationError("Booking must be at least 1 hour.")
+            
+            if duration.total_seconds() > 86400:  # More than 24 hours
+                raise forms.ValidationError("Booking cannot exceed 24 hours.")
+        
+        return cleaned_data
+
+
+class ServiceReviewForm(forms.ModelForm):
+    """Form for reviewing services"""
+    
+    class Meta:
+        model = ServiceReview
+        fields = ['rating', 'comment']
+        widgets = {
+            'rating': forms.Select(choices=[(i, i) for i in range(1, 6)], attrs={'class': 'form-control'}),
+            'comment': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
         }

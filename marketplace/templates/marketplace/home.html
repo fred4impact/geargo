@@ -9,7 +9,7 @@
         <div class="row align-items-center">
             <div class="col-lg-6">
                 <h1 class="display-3 fw-bold mb-4">Rent Gear with AI-Powered Intelligence</h1>
-                <p class="lead mb-4 fs-5">Discover bikes, instruments, and sound equipment from trusted owners. Our AI helps you find the perfect rental and ensures safe transactions.</p>
+                <p class="lead mb-4 fs-5">Discover bikes, instruments, sound equipment, and event gear from trusted owners. Our AI helps you find the perfect rental.</p>
                 <div class="d-flex gap-3 flex-wrap">
                     <a href="{% url 'marketplace:item_list' %}" class="btn btn-light btn-lg px-4 py-3">
                         <i class="fas fa-search me-2"></i>Browse Items
@@ -42,7 +42,7 @@
     </div>
 </section>
 
-<!-- Categories Section -->
+<!-- Quick Categories Section -->
 <section class="py-5">
     <div class="container">
         <div class="text-center mb-5">
@@ -51,24 +51,26 @@
         </div>
         <div class="row">
             {% for category in categories %}
-            <div class="col-lg-4 col-md-6 mb-4">
-                <div class="card text-center h-100 border-0 shadow-sm">
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card text-center h-100 border-0 shadow-sm hover-lift">
                     <div class="card-body p-4">
-                        <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
+                        <div class="bg-blue-light bg-opacity-20 rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
                             {% if category.name == 'Bikes' %}
-                                <i class="fas fa-bicycle fa-2x text-primary"></i>
+                                <i class="fas fa-bicycle fa-2x text-blue-dark"></i>
                             {% elif category.name == 'Instruments' %}
-                                <i class="fas fa-music fa-2x text-primary"></i>
+                                <i class="fas fa-music fa-2x text-blue-medium"></i>
                             {% elif category.name == 'Sound Equipment' %}
-                                <i class="fas fa-volume-up fa-2x text-primary"></i>
+                                <i class="fas fa-volume-up fa-2x text-blue-light"></i>
+                            {% elif category.name == 'Events & Entertainment' %}
+                                <i class="fas fa-calendar-alt fa-2x text-blue-dark"></i>
                             {% else %}
-                                <i class="fas fa-box fa-2x text-primary"></i>
+                                <i class="fas fa-box fa-2x text-blue-medium"></i>
                             {% endif %}
                         </div>
                         <h5 class="card-title fw-bold mb-3">{{ category.name }}</h5>
-                        <p class="card-text text-muted mb-4">{{ category.description|default:"Explore amazing items in this category." }}</p>
-                        <a href="{% url 'marketplace:category_detail' category.id %}" class="btn btn-primary">
-                            <i class="fas fa-arrow-right me-2"></i>Browse {{ category.name }}
+                        <p class="card-text text-muted mb-4">{{ category.description|truncatewords:8|default:"Explore amazing items in this category." }}</p>
+                        <a href="{% url 'marketplace:category_detail' category.id %}" class="btn btn-blue-medium">
+                            <i class="fas fa-arrow-right me-2"></i>Browse
                         </a>
                     </div>
                 </div>
@@ -85,33 +87,39 @@
     </div>
 </section>
 
-<!-- AI-Powered Recommendations Section -->
-{% if recommended_items %}
-<section class="py-5">
+<!-- Featured Items Section with Infinite Scroll -->
+<section class="py-5 bg-light">
     <div class="container">
         <div class="text-center mb-5">
             <h2 class="fw-bold mb-3">
-                <i class="fas fa-robot text-primary me-2"></i>
                 {% if user.is_authenticated %}
+                    <i class="fas fa-robot text-primary me-2"></i>
                     Recommended for You
                 {% else %}
-                    Popular Items
+                    <i class="fas fa-star text-primary me-2"></i>
+                    Featured Items
                 {% endif %}
             </h2>
             <p class="text-muted fs-5">
                 {% if user.is_authenticated %}
-                    Personalized recommendations based on your preferences and rental history
+                    Personalized recommendations based on your preferences
                 {% else %}
                     Most popular items on our platform
                 {% endif %}
             </p>
         </div>
-        <div class="row">
+        
+        <!-- Items Grid with Infinite Scroll -->
+        <div id="items-container" class="row">
             {% for item in recommended_items %}
-            <div class="col-lg-4 col-md-6 mb-4">
-                <div class="card h-100 border-0 shadow-sm border-primary border-2">
+            <div class="col-lg-4 col-md-6 mb-4 item-card">
+                <div class="card h-100 border-0 shadow-sm hover-lift">
                     {% if item.images.first %}
-                        <img src="{{ item.images.first.image.url }}" class="card-img-top" alt="{{ item.title }}" style="height: 220px; object-fit: cover;">
+                        {% if item.images.first.thumbnail %}
+                            <img src="{{ item.images.first.thumbnail.url }}" class="card-img-top" alt="{{ item.title }}" style="height: 220px; object-fit: cover;">
+                        {% else %}
+                            <img src="{{ item.images.first.image.url }}" class="card-img-top" alt="{{ item.title }}" style="height: 220px; object-fit: cover;">
+                        {% endif %}
                     {% else %}
                         <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 220px;">
                             <i class="fas fa-image fa-3x text-white"></i>
@@ -119,65 +127,20 @@
                     {% endif %}
                     <div class="card-body p-4">
                         <div class="d-flex justify-content-between align-items-start mb-2">
-                            <span class="badge bg-primary">{{ item.category.name }}</span>
-                            <span class="badge bg-{% if item.condition == 'excellent' %}success{% elif item.condition == 'good' %}info{% elif item.condition == 'fair' %}warning{% else %}secondary{% endif %}">
+                            <span class="badge bg-blue-medium">{{ item.category.name }}</span>
+                            <span class="badge bg-{% if item.condition == 'excellent' %}success{% elif item.condition == 'good' %}secondary{% elif item.condition == 'fair' %}warning{% else %}danger{% endif %}">
                                 {{ item.condition|title }}
                             </span>
                         </div>
                         <h5 class="card-title fw-bold mb-2">{{ item.title }}</h5>
                         <p class="card-text text-muted mb-3">{{ item.description|truncatewords:15 }}</p>
                         <div class="d-flex justify-content-between align-items-center mb-3">
-                            <span class="fw-bold text-primary fs-5">${{ item.daily_price }}/day</span>
+                            <span class="fw-bold text-accent fs-5">${{ item.daily_price }}/day</span>
                             <small class="text-muted">
                                 <i class="fas fa-map-marker-alt me-1"></i>{{ item.location }}
                             </small>
                         </div>
-                        <a href="{% url 'marketplace:item_detail' item.id %}" class="btn btn-primary w-100">
-                            <i class="fas fa-eye me-2"></i>View Details
-                        </a>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-</section>
-{% endif %}
-
-<!-- Featured Items Section -->
-<section class="py-5 bg-light">
-    <div class="container">
-        <div class="text-center mb-5">
-            <h2 class="fw-bold mb-3">Featured Items</h2>
-            <p class="text-muted fs-5">Discover the most popular rentals on our platform</p>
-        </div>
-        <div class="row">
-            {% for item in featured_items %}
-            <div class="col-lg-4 col-md-6 mb-4">
-                <div class="card h-100 border-0 shadow-sm">
-                    {% if item.images.first %}
-                        <img src="{{ item.images.first.image.url }}" class="card-img-top" alt="{{ item.title }}" style="height: 220px; object-fit: cover;">
-                    {% else %}
-                        <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 220px;">
-                            <i class="fas fa-image fa-3x text-white"></i>
-                        </div>
-                    {% endif %}
-                    <div class="card-body p-4">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <span class="badge bg-primary">{{ item.category.name }}</span>
-                            <span class="badge bg-{% if item.condition == 'excellent' %}success{% elif item.condition == 'good' %}info{% elif item.condition == 'fair' %}warning{% else %}secondary{% endif %}">
-                                {{ item.condition|title }}
-                            </span>
-                        </div>
-                        <h5 class="card-title fw-bold mb-2">{{ item.title }}</h5>
-                        <p class="card-text text-muted mb-3">{{ item.description|truncatewords:15 }}</p>
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <span class="fw-bold text-primary fs-5">${{ item.daily_price }}/day</span>
-                            <small class="text-muted">
-                                <i class="fas fa-map-marker-alt me-1"></i>{{ item.location }}
-                            </small>
-                        </div>
-                        <a href="{% url 'marketplace:item_detail' item.id %}" class="btn btn-primary w-100">
+                        <a href="{% url 'marketplace:item_detail' item.id %}" class="btn btn-blue-medium w-100">
                             <i class="fas fa-eye me-2"></i>View Details
                         </a>
                     </div>
@@ -187,7 +150,7 @@
             <div class="col-12 text-center">
                 <div class="py-5">
                     <i class="fas fa-star fa-3x text-muted mb-3"></i>
-                    <p class="text-muted fs-5 mb-4">No featured items available yet.</p>
+                    <p class="text-muted fs-5 mb-4">No items available yet.</p>
                     {% if user.is_authenticated %}
                         <a href="{% url 'marketplace:item_create' %}" class="btn btn-primary btn-lg">
                             <i class="fas fa-plus me-2"></i>List Your First Item
@@ -196,6 +159,14 @@
                 </div>
             </div>
             {% endfor %}
+        </div>
+        
+        <!-- Load More Button -->
+        <div class="text-center mt-4" id="load-more-container">
+            <button id="load-more-btn" class="btn btn-outline-primary btn-lg" style="display: none;">
+                <i class="fas fa-spinner fa-spin me-2" id="loading-spinner" style="display: none;"></i>
+                <span id="load-more-text">Load More Items</span>
+            </button>
         </div>
     </div>
 </section>
@@ -209,10 +180,10 @@
         </div>
         <div class="row">
             <div class="col-lg-4 col-md-6 mb-4">
-                <div class="card border-0 shadow-sm h-100">
+                <div class="card border-0 shadow-sm h-100 hover-lift">
                     <div class="card-body text-center p-4">
-                        <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
-                            <i class="fas fa-robot fa-2x text-primary"></i>
+                        <div class="bg-blue-light bg-opacity-20 rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
+                            <i class="fas fa-robot fa-2x text-blue-dark"></i>
                         </div>
                         <h5 class="fw-bold mb-3">AI-Powered Matching</h5>
                         <p class="text-muted">Our intelligent system helps you find the perfect gear based on your preferences and rental history.</p>
@@ -220,10 +191,10 @@
                 </div>
             </div>
             <div class="col-lg-4 col-md-6 mb-4">
-                <div class="card border-0 shadow-sm h-100">
+                <div class="card border-0 shadow-sm h-100 hover-lift">
                     <div class="card-body text-center p-4">
-                        <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
-                            <i class="fas fa-shield-alt fa-2x text-success"></i>
+                        <div class="bg-blue-medium bg-opacity-20 rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
+                            <i class="fas fa-shield-alt fa-2x text-blue-medium"></i>
                         </div>
                         <h5 class="fw-bold mb-3">Secure Transactions</h5>
                         <p class="text-muted">Safe and secure payment processing with built-in fraud detection and comprehensive damage protection.</p>
@@ -231,10 +202,10 @@
                 </div>
             </div>
             <div class="col-lg-4 col-md-6 mb-4">
-                <div class="card border-0 shadow-sm h-100">
+                <div class="card border-0 shadow-sm h-100 hover-lift">
                     <div class="card-body text-center p-4">
-                        <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
-                            <i class="fas fa-star fa-2x text-warning"></i>
+                        <div class="bg-blue-dark bg-opacity-20 rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
+                            <i class="fas fa-star fa-2x text-blue-light"></i>
                         </div>
                         <h5 class="fw-bold mb-3">Trusted Community</h5>
                         <p class="text-muted">Join a community of verified owners and renters with transparent ratings and detailed reviews.</p>
@@ -244,4 +215,147 @@
         </div>
     </div>
 </section>
+
+<!-- Infinite Scroll JavaScript -->
+<script>
+let currentPage = 1;
+let isLoading = false;
+let hasMoreItems = true;
+
+// Function to load more items
+function loadMoreItems() {
+    if (isLoading || !hasMoreItems) return;
+    
+    isLoading = true;
+    const loadMoreBtn = document.getElementById('load-more-btn');
+    const loadingSpinner = document.getElementById('loading-spinner');
+    const loadMoreText = document.getElementById('load-more-text');
+    
+    // Show loading state
+    loadMoreBtn.style.display = 'inline-block';
+    loadingSpinner.style.display = 'inline-block';
+    loadMoreText.textContent = 'Loading...';
+    
+    // Make AJAX request to load more items
+    fetch(`/items/?page=${currentPage + 1}&ajax=1`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.items && data.items.length > 0) {
+                // Add new items to the container
+                const container = document.getElementById('items-container');
+                data.items.forEach(item => {
+                    const itemHtml = createItemCard(item);
+                    container.insertAdjacentHTML('beforeend', itemHtml);
+                });
+                
+                currentPage++;
+                
+                // Check if there are more items
+                if (data.has_next) {
+                    hasMoreItems = true;
+                } else {
+                    hasMoreItems = false;
+                    loadMoreBtn.style.display = 'none';
+                }
+            } else {
+                hasMoreItems = false;
+                loadMoreBtn.style.display = 'none';
+            }
+        })
+        .catch(error => {
+            console.error('Error loading more items:', error);
+            loadMoreText.textContent = 'Error loading items. Try again.';
+        })
+        .finally(() => {
+            isLoading = false;
+            loadingSpinner.style.display = 'none';
+            if (hasMoreItems) {
+                loadMoreText.textContent = 'Load More Items';
+            }
+        });
+}
+
+// Function to create item card HTML
+function createItemCard(item) {
+    return `
+        <div class="col-lg-4 col-md-6 mb-4 item-card">
+            <div class="card h-100 border-0 shadow-sm hover-lift">
+                ${item.image_url ? 
+                    `<img src="${item.image_url}" class="card-img-top" alt="${item.title}" style="height: 220px; object-fit: cover;">` :
+                    `<div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 220px;">
+                        <i class="fas fa-image fa-3x text-white"></i>
+                    </div>`
+                }
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="badge bg-primary">${item.category_name}</span>
+                        <span class="badge bg-${getConditionBadgeColor(item.condition)}">${item.condition}</span>
+                    </div>
+                    <h5 class="card-title fw-bold mb-2">${item.title}</h5>
+                    <p class="card-text text-muted mb-3">${item.description}</p>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="fw-bold text-accent fs-5">$${item.daily_price}/day</span>
+                        <small class="text-muted">
+                            <i class="fas fa-map-marker-alt me-1"></i>${item.location}
+                        </small>
+                    </div>
+                    <a href="/items/${item.id}/" class="btn btn-primary w-100">
+                        <i class="fas fa-eye me-2"></i>View Details
+                    </a>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// Function to get condition badge color
+function getConditionBadgeColor(condition) {
+    switch(condition.toLowerCase()) {
+        case 'excellent': return 'success';
+        case 'good': return 'secondary';
+        case 'fair': return 'warning';
+        default: return 'danger';
+    }
+}
+
+// Event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    const loadMoreBtn = document.getElementById('load-more-btn');
+    
+    // Show load more button if there are items
+    if (document.querySelectorAll('.item-card').length > 0) {
+        loadMoreBtn.style.display = 'inline-block';
+    }
+    
+    // Load more button click
+    loadMoreBtn.addEventListener('click', loadMoreItems);
+    
+    // Infinite scroll on scroll
+    window.addEventListener('scroll', function() {
+        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 1000) {
+            loadMoreItems();
+        }
+    });
+});
+</script>
+
+<!-- Hover Effects CSS -->
+<style>
+.hover-lift {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.hover-lift:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+.card {
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    border-color: var(--primary-color);
+}
+</style>
 {% endblock %}
