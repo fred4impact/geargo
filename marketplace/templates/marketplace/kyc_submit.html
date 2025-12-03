@@ -1,0 +1,81 @@
+{% extends 'marketplace/base.html' %}
+
+{% block title %}KYC Verification - GearGo{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom py-4">
+                    <h2 class="fw-bold mb-0" style="color: var(--dark-color);">
+                        <i class="fas fa-id-card me-2"></i>KYC Verification
+                    </h2>
+                    <p class="text-muted mb-0 mt-2">Complete your identity verification to rent items</p>
+                </div>
+                <div class="card-body p-4">
+                    <div class="alert alert-info mb-4">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Why we need this:</strong> KYC verification helps us ensure a safe and secure rental marketplace for everyone.
+                    </div>
+                    
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="mb-4">
+                            <label for="{{ form.legal_name.id_for_label }}" class="form-label fw-semibold">
+                                Full Legal Name <span class="text-danger">*</span>
+                            </label>
+                            {{ form.legal_name }}
+                            {% if form.legal_name.errors %}
+                                <div class="text-danger small">{{ form.legal_name.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="{{ form.id_type.id_for_label }}" class="form-label fw-semibold">
+                                ID Type <span class="text-danger">*</span>
+                            </label>
+                            {{ form.id_type }}
+                            {% if form.id_type.errors %}
+                                <div class="text-danger small">{{ form.id_type.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="{{ form.id_number.id_for_label }}" class="form-label fw-semibold">
+                                ID Number <span class="text-danger">*</span>
+                            </label>
+                            {{ form.id_number }}
+                            {% if form.id_number.errors %}
+                                <div class="text-danger small">{{ form.id_number.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="{{ form.id_document.id_for_label }}" class="form-label fw-semibold">
+                                ID Document <span class="text-danger">*</span>
+                            </label>
+                            {{ form.id_document }}
+                            <small class="form-text text-muted">Upload a clear photo or scan of your ID (Max 5MB, JPG/PNG/PDF)</small>
+                            {% if form.id_document.errors %}
+                                <div class="text-danger small">{{ form.id_document.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-dark btn-lg">
+                                <i class="fas fa-paper-plane me-2"></i>Submit Verification
+                            </button>
+                            <a href="{% url 'marketplace:kyc_status' %}" class="btn btn-outline-secondary">
+                                Check Status
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

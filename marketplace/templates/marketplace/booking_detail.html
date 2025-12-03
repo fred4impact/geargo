@@ -88,10 +88,27 @@
                                 <span>{{ booking.duration_days }} days</span>
                             </div>
                             <hr class="my-2">
-                            <div class="d-flex justify-content-between fw-bold fs-5">
+                            <div class="d-flex justify-content-between fw-bold fs-5 mb-3">
                                 <span>Total Amount:</span>
                                 <span class="text-primary">${{ booking.total_amount }}</span>
                             </div>
+                            {% if booking.payment_status == 'paid' %}
+                                <div class="alert alert-success mb-0">
+                                    <i class="fas fa-check-circle me-2"></i>
+                                    <strong>Payment Status:</strong> {{ booking.payment_status|title }}
+                                    {% if booking.payment_transaction_id %}
+                                        <br><small>Transaction ID: {{ booking.payment_transaction_id }}</small>
+                                    {% endif %}
+                                    {% if booking.payment_date %}
+                                        <br><small>Paid on: {{ booking.payment_date|date:"M j, Y g:i A" }}</small>
+                                    {% endif %}
+                                </div>
+                            {% else %}
+                                <div class="alert alert-warning mb-0">
+                                    <i class="fas fa-exclamation-circle me-2"></i>
+                                    <strong>Payment Status:</strong> {{ booking.payment_status|title }}
+                                </div>
+                            {% endif %}
                         </div>
                     </div>
 
@@ -120,13 +137,18 @@
 
             <!-- Action Buttons -->
             <div class="d-flex gap-3">
-                {% if booking.status == 'pending' and user.profile == booking.renter %}
-                    <button class="btn btn-success btn-lg">
+                {% if booking.status == 'pending' and booking.payment_status == 'pending' and user.profile == booking.renter %}
+                    <a href="{% url 'marketplace:booking_payment' booking.id %}" class="btn btn-success btn-lg">
                         <i class="fas fa-credit-card me-2"></i>Complete Payment
-                    </button>
+                    </a>
                     <button class="btn btn-outline-danger btn-lg">
                         <i class="fas fa-times me-2"></i>Cancel Booking
                     </button>
+                {% elif booking.payment_status == 'paid' and booking.status == 'confirmed' %}
+                    <div class="alert alert-success w-100">
+                        <i class="fas fa-check-circle me-2"></i>
+                        <strong>Payment Confirmed!</strong> Your booking is confirmed and ready.
+                    </div>
                 {% elif booking.status == 'confirmed' and user.profile == booking.item.owner %}
                     <button class="btn btn-primary btn-lg">
                         <i class="fas fa-check me-2"></i>Confirm Pickup

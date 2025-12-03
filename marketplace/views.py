@@ -6,8 +6,8 @@ from django.core.paginator import Paginator
 from django.utils import timezone
 from django.db.models import Count, Sum, Q
 from datetime import datetime, timedelta
-from .models import Item, Category, Booking, Profile, Review, Service, ServiceCategory, ServiceBooking, ServiceReview
-from .forms import ItemForm, BookingForm, ProfileForm, UserForm, ServiceForm, ServiceBookingForm, ServiceReviewForm
+from .models import Item, Category, Booking, Profile, Review, Service, ServiceCategory, ServiceBooking, ServiceReview, KYCVerification
+from .forms import ItemForm, BookingForm, ProfileForm, UserForm, ServiceForm, ServiceBookingForm, ServiceReviewForm, KYCVerificationForm
 from notifications.models import Notification
 from notifications.services import EmailNotificationService
 # Import AI services with fallback
@@ -41,9 +41,12 @@ def home(request):
         # Fallback to basic recommendations - get 6 items from all categories
         recommended_items = Item.objects.filter(availability_status='available').order_by('-created_at')[:6]
     
+    # Get exactly 4 categories for the home page
+    categories = Category.objects.all()[:4]
+    
     context = {
         'recommended_items': recommended_items,
-        'categories': Category.objects.all(),
+        'categories': categories,
         'ai_available': AI_AVAILABLE,
     }
     return render(request, 'marketplace/home.html', context)
@@ -260,8 +263,33 @@ def booking_detail(request, booking_id):
 
 @login_required
 def booking_create(request, item_id):
-    """Create a new booking"""
+    """Create a new booking - requires KYC verification for renters"""
     item = get_object_or_404(Item, id=item_id, availability_status='available')
+    
+    # Check if user is trying to rent (not the owner)
+    if request.user.profile == item.owner:
+        messages.error(request, 'You cannot rent your own item.')
+        return redirect('marketplace:item_detail', item_id=item.id)
+    
+    # Check KYC verification for renters
+    # Once KYC is approved, renters won't be asked to verify again
+    if request.user.profile.is_renter:
+        try:
+            kyc = request.user.profile.kyc_verification
+            # Only block booking if KYC is NOT approved
+            # If approved (kyc.is_approved = True), this condition is False and booking proceeds
+            if not kyc.is_approved:
+                if kyc.is_pending:
+                    messages.warning(request, 'Your KYC verification is pending approval. You cannot rent items until your verification is approved.')
+                elif kyc.is_rejected:
+                    messages.error(request, f'Your KYC verification was rejected. Reason: {kyc.rejection_reason}. Please submit a new verification.')
+                else:
+                    messages.warning(request, 'Please complete KYC verification before renting items.')
+                return redirect('marketplace:kyc_submit')
+            # If kyc.is_approved is True, we continue here and allow booking
+        except KYCVerification.DoesNotExist:
+            messages.warning(request, 'Please complete KYC verification before renting items.')
+            return redirect('marketplace:kyc_submit')
     
     if request.method == 'POST':
         form = BookingForm(request.POST)
@@ -270,21 +298,16 @@ def booking_create(request, item_id):
             booking.renter = request.user.profile
             booking.item = item
             booking.total_amount = item.daily_price * booking.duration_days
+            booking.status = 'pending'  # Keep as pending until payment is completed
+            booking.payment_status = 'pending'
             booking.save()
             
-            # Update item availability
-            item.availability_status = 'rented'
-            item.save()
+            # Don't update item availability yet - wait for payment confirmation
+            # item.availability_status = 'rented'
+            # item.save()
             
-            # Send email notifications
-            try:
-                EmailNotificationService.send_booking_confirmation(booking)
-            except Exception as e:
-                # Log error but don't fail the booking creation
-                print(f"Error sending email notification: {e}")
-            
-            messages.success(request, 'Booking created successfully!')
-            return redirect('marketplace:booking_detail', booking_id=booking.id)
+            messages.success(request, 'Booking created! Please complete payment to confirm your reservation.')
+            return redirect('marketplace:booking_payment', booking_id=booking.id)
     else:
         form = BookingForm()
     
@@ -768,3 +791,105 @@ def service_review_create(request, booking_id):
         'title': 'Review Service',
     }
     return render(request, 'marketplace/service_review_form.html', context)
+
+
+# KYC Verification Views
+@login_required
+def kyc_submit(request):
+    """Submit KYC verification for renters"""
+    profile = request.user.profile
+    
+    # Check if KYC already exists
+    try:
+        kyc = profile.kyc_verification
+        if kyc.is_approved:
+            messages.info(request, 'Your KYC verification is already approved.')
+            return redirect('marketplace:kyc_status')
+        elif kyc.is_pending:
+            messages.info(request, 'Your KYC verification is pending approval.')
+            return redirect('marketplace:kyc_status')
+    except KYCVerification.DoesNotExist:
+        pass
+    
+    if request.method == 'POST':
+        form = KYCVerificationForm(request.POST, request.FILES)
+        if form.is_valid():
+            kyc = form.save(commit=False)
+            kyc.profile = profile
+            kyc.status = 'pending'
+            kyc.save()
+            messages.success(request, 'KYC verification submitted successfully! It will be reviewed by our team.')
+            return redirect('marketplace:kyc_status')
+    else:
+        form = KYCVerificationForm()
+    
+    context = {
+        'form': form,
+        'title': 'KYC Verification',
+    }
+    return render(request, 'marketplace/kyc_submit.html', context)
+
+
+@login_required
+def kyc_status(request):
+    """View KYC verification status"""
+    profile = request.user.profile
+    
+    try:
+        kyc = profile.kyc_verification
+    except KYCVerification.DoesNotExist:
+        kyc = None
+    
+    context = {
+        'kyc': kyc,
+        'title': 'KYC Verification Status',
+    }
+    return render(request, 'marketplace/kyc_status.html', context)
+
+
+# Payment Views
+@login_required
+def booking_payment(request, booking_id):
+    """Mock payment page for booking"""
+    booking = get_object_or_404(Booking, id=booking_id)
+    
+    # Check if user is the renter
+    if booking.renter != request.user.profile:
+        messages.error(request, 'You do not have permission to access this payment page.')
+        return redirect('marketplace:booking_list')
+    
+    # Check if payment is already completed
+    if booking.payment_status == 'paid':
+        messages.info(request, 'Payment has already been completed for this booking.')
+        return redirect('marketplace:booking_detail', booking_id=booking.id)
+    
+    # Process mock payment
+    if request.method == 'POST':
+        # Mock payment processing - simulate success
+        import uuid as uuid_lib
+        from django.utils import timezone
+        
+        booking.payment_status = 'paid'
+        booking.status = 'confirmed'
+        booking.payment_date = timezone.now()
+        booking.payment_transaction_id = f"MOCK-{uuid_lib.uuid4().hex[:12].upper()}"
+        booking.save()
+        
+        # Update item availability
+        booking.item.availability_status = 'rented'
+        booking.item.save()
+        
+        # Send email notifications
+        try:
+            EmailNotificationService.send_booking_confirmation(booking)
+        except Exception as e:
+            print(f"Error sending email notification: {e}")
+        
+        messages.success(request, f'Payment completed successfully! Your booking is now confirmed. Transaction ID: {booking.payment_transaction_id}')
+        return redirect('marketplace:booking_detail', booking_id=booking.id)
+    
+    context = {
+        'booking': booking,
+        'title': 'Complete Payment',
+    }
+    return render(request, 'marketplace/booking_payment.html', context)

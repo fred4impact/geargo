@@ -1,6 +1,6 @@
 # GearGo Docker Makefile
 
-.PHONY: help build up down restart logs shell migrate collectstatic superuser setup test clean
+.PHONY: help build up down restart logs shell migrate makemigrations makemigrations-app migrate-local makemigrations-local makemigrations-app-local collectstatic superuser setup test clean
 
 # Default target
 help:
@@ -12,7 +12,12 @@ help:
 	@echo "  restart      - Restart all services"
 	@echo "  logs         - Show logs from all services"
 	@echo "  shell        - Open shell in web container"
-	@echo "  migrate      - Run database migrations"
+	@echo "  makemigrations - Create migration files for all apps (Docker)"
+	@echo "  makemigrations-app - Create migration files for marketplace app (Docker)"
+	@echo "  makemigrations-local - Create migration files for all apps (Local)"
+	@echo "  makemigrations-app-local - Create migration files for marketplace app (Local)"
+	@echo "  migrate      - Run database migrations (Docker)"
+	@echo "  migrate-local - Run database migrations (Local)"
 	@echo "  collectstatic - Collect static files"
 	@echo "  superuser    - Create Django superuser"
 	@echo "  setup        - Initial setup (migrate + collectstatic + setup data)"
@@ -54,9 +59,29 @@ logs-celery:
 shell:
 	docker-compose exec web python manage.py shell
 
-# Run database migrations
+# Create migration files for all apps (Docker)
+makemigrations:
+	docker-compose exec web python manage.py makemigrations
+
+# Create migration files for marketplace app (Docker)
+makemigrations-app:
+	docker-compose exec web python manage.py makemigrations marketplace
+
+# Create migration files for all apps (Local - no Docker)
+makemigrations-local:
+	python manage.py makemigrations
+
+# Create migration files for marketplace app (Local - no Docker)
+makemigrations-app-local:
+	python manage.py makemigrations marketplace
+
+# Run database migrations (Docker)
 migrate:
 	docker-compose exec web python manage.py migrate
+
+# Run database migrations (Local - no Docker)
+migrate-local:
+	python manage.py migrate
 
 # Collect static files
 collectstatic:

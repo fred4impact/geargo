@@ -3,74 +3,103 @@
 {% block title %}GearGo - AI-Powered Rental Marketplace{% endblock %}
 
 {% block content %}
-<!-- Hero Section -->
+<!-- Hero Banner Section - Inspired by sax.co.uk -->
 <section class="hero-section">
     <div class="container position-relative">
         <div class="row align-items-center">
-            <div class="col-lg-6">
-                <h1 class="display-3 fw-bold mb-4">Rent Gear with AI-Powered Intelligence</h1>
-                <p class="lead mb-4 fs-5">Discover bikes, instruments, sound equipment, and event gear from trusted owners. Our AI helps you find the perfect rental.</p>
-                <div class="d-flex gap-3 flex-wrap">
-                    <a href="{% url 'marketplace:item_list' %}" class="btn btn-light btn-lg px-4 py-3">
-                        <i class="fas fa-search me-2"></i>Browse Items
+            <div class="col-lg-8 mx-auto text-center">
+                <div class="mb-3">
+                    <span class="badge bg-dark text-white px-3 py-2 mb-3" style="font-size: 0.875rem; letter-spacing: 1px;">NEW RELEASE</span>
+                </div>
+                <h1 class="display-4 fw-bold mb-4" style="color: var(--dark-color); letter-spacing: -1px;">GEARGO RENTAL MARKETPLACE</h1>
+                <p class="lead mb-4 fs-5 text-muted" style="max-width: 600px; margin: 0 auto;">NOW AVAILABLE</p>
+                <p class="mb-5 text-muted" style="max-width: 700px; margin: 0 auto;">Discover bikes, instruments, sound equipment, and event gear from trusted owners. Our AI helps you find the perfect rental.</p>
+                <div class="d-flex gap-3 flex-wrap justify-content-center">
+                    <a href="{% url 'marketplace:item_list' %}" class="btn btn-dark btn-lg px-5 py-3" style="font-weight: 600; letter-spacing: 0.5px;">
+                        Shop now
                     </a>
                     {% if user.is_authenticated %}
-                        <a href="{% url 'marketplace:item_create' %}" class="btn btn-outline-light btn-lg px-4 py-3">
-                            <i class="fas fa-plus me-2"></i>List Your Gear
+                        <a href="{% url 'marketplace:item_create' %}" class="btn btn-outline-dark btn-lg px-5 py-3" style="font-weight: 600; letter-spacing: 0.5px;">
+                            List Your Gear
                         </a>
                     {% else %}
-                        <a href="{% url 'account_signup' %}" class="btn btn-outline-light btn-lg px-4 py-3">
-                            <i class="fas fa-rocket me-2"></i>Get Started
+                        <a href="{% url 'account_signup' %}" class="btn btn-outline-dark btn-lg px-5 py-3" style="font-weight: 600; letter-spacing: 0.5px;">
+                            Get Started
                         </a>
                     {% endif %}
-                </div>
-            </div>
-            <div class="col-lg-6 text-center">
-                <div class="position-relative">
-                    <div class="bg-white bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 300px; height: 300px;">
-                        <i class="fas fa-cogs fa-6x text-white"></i>
-                    </div>
-                    <div class="position-absolute top-0 start-0 bg-success bg-opacity-75 rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px; transform: translate(-20px, -20px);">
-                        <i class="fas fa-robot fa-2x text-white"></i>
-                    </div>
-                    <div class="position-absolute bottom-0 end-0 bg-warning bg-opacity-75 rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 60px; height: 60px; transform: translate(20px, 20px);">
-                        <i class="fas fa-shield-alt fa-lg text-white"></i>
-                    </div>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Quick Categories Section -->
+<!-- Promotional Banners - Inspired by sax.co.uk -->
+<section class="py-4 bg-white border-bottom">
+    <div class="container">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <a href="{% url 'marketplace:item_list' %}" class="text-decoration-none">
+                    <div class="card border-0 shadow-sm h-100 hover-lift" style="min-height: 200px; background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);">
+                        <div class="card-body d-flex flex-column justify-content-center align-items-center text-center p-4">
+                            <h5 class="fw-bold mb-2" style="color: var(--dark-color);">Why Rent from Us</h5>
+                            <p class="text-muted mb-0 small">Trusted owners, verified gear, secure transactions</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a href="{% url 'marketplace:item_list' %}" class="text-decoration-none">
+                    <div class="card border-0 shadow-sm h-100 hover-lift" style="min-height: 200px; background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);">
+                        <div class="card-body d-flex flex-column justify-content-center align-items-center text-center p-4">
+                            <h5 class="fw-bold mb-2" style="color: var(--dark-color);">FAST DELIVERY</h5>
+                            <p class="text-muted mb-0 small">Quick and reliable gear delivery to your location</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a href="{% url 'marketplace:item_list' %}" class="text-decoration-none">
+                    <div class="card border-0 shadow-sm h-100 hover-lift" style="min-height: 200px; background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);">
+                        <div class="card-body d-flex flex-column justify-content-center align-items-center text-center p-4">
+                            <h5 class="fw-bold mb-2" style="color: var(--dark-color);">Award Winning Service</h5>
+                            <p class="text-muted mb-0 small">Premium rental experience with 24/7 support</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Quick Categories Section - 4 Categories -->
 <section class="py-5">
     <div class="container">
         <div class="text-center mb-5">
-            <h2 class="fw-bold mb-3">Browse by Category</h2>
+            <h2 class="fw-bold mb-3" style="color: var(--dark-color);">Browse by Category</h2>
             <p class="text-muted fs-5">Find the perfect gear for your needs</p>
         </div>
-        <div class="row">
+        <div class="row g-4">
             {% for category in categories %}
-            <div class="col-lg-3 col-md-6 mb-4">
+            <div class="col-lg-3 col-md-6">
                 <div class="card text-center h-100 border-0 shadow-sm hover-lift">
                     <div class="card-body p-4">
-                        <div class="bg-blue-light bg-opacity-20 rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
+                        <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
                             {% if category.name == 'Bikes' %}
-                                <i class="fas fa-bicycle fa-2x text-blue-dark"></i>
+                                <i class="fas fa-bicycle fa-2x" style="color: var(--dark-color);"></i>
                             {% elif category.name == 'Instruments' %}
-                                <i class="fas fa-music fa-2x text-blue-medium"></i>
+                                <i class="fas fa-music fa-2x" style="color: var(--dark-color);"></i>
                             {% elif category.name == 'Sound Equipment' %}
-                                <i class="fas fa-volume-up fa-2x text-blue-light"></i>
+                                <i class="fas fa-volume-up fa-2x" style="color: var(--dark-color);"></i>
                             {% elif category.name == 'Events & Entertainment' %}
-                                <i class="fas fa-calendar-alt fa-2x text-blue-dark"></i>
+                                <i class="fas fa-calendar-alt fa-2x" style="color: var(--dark-color);"></i>
                             {% else %}
-                                <i class="fas fa-box fa-2x text-blue-medium"></i>
+                                <i class="fas fa-box fa-2x" style="color: var(--dark-color);"></i>
                             {% endif %}
                         </div>
-                        <h5 class="card-title fw-bold mb-3">{{ category.name }}</h5>
+                        <h5 class="card-title fw-bold mb-3" style="color: var(--dark-color);">{{ category.name }}</h5>
                         <p class="card-text text-muted mb-4">{{ category.description|truncatewords:8|default:"Explore amazing items in this category." }}</p>
-                        <a href="{% url 'marketplace:category_detail' category.id %}" class="btn btn-blue-medium">
-                            <i class="fas fa-arrow-right me-2"></i>Browse
+                        <a href="{% url 'marketplace:category_detail' category.id %}" class="btn btn-dark">
+                            Shop now
                         </a>
                     </div>
                 </div>
@@ -90,59 +119,65 @@
 <!-- Featured Items Section with Infinite Scroll -->
 <section class="py-5 bg-light">
     <div class="container">
-        <div class="text-center mb-5">
-            <h2 class="fw-bold mb-3">
-                {% if user.is_authenticated %}
-                    <i class="fas fa-robot text-primary me-2"></i>
-                    Recommended for You
-                {% else %}
-                    <i class="fas fa-star text-primary me-2"></i>
-                    Featured Items
-                {% endif %}
-            </h2>
-            <p class="text-muted fs-5">
-                {% if user.is_authenticated %}
-                    Personalized recommendations based on your preferences
-                {% else %}
-                    Most popular items on our platform
-                {% endif %}
-            </p>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold mb-2" style="color: var(--dark-color);">
+                    {% if user.is_authenticated %}
+                        Recommended for You
+                    {% else %}
+                        The latest gear
+                    {% endif %}
+                </h2>
+            </div>
+            <div>
+                <a href="{% url 'marketplace:item_list' %}" class="text-decoration-none text-dark fw-semibold">
+                    View all <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+            </div>
         </div>
         
-        <!-- Items Grid with Infinite Scroll -->
-        <div id="items-container" class="row">
+        <!-- Items Grid with Infinite Scroll - Inspired by sax.co.uk -->
+        <div id="items-container" class="row g-3">
             {% for item in recommended_items %}
-            <div class="col-lg-4 col-md-6 mb-4 item-card">
-                <div class="card h-100 border-0 shadow-sm hover-lift">
-                    {% if item.images.first %}
-                        {% if item.images.first.thumbnail %}
-                            <img src="{{ item.images.first.thumbnail.url }}" class="card-img-top" alt="{{ item.title }}" style="height: 220px; object-fit: cover;">
+            <div class="col-lg-4 col-md-6 item-card">
+                <div class="card product-card h-100 border-0">
+                    <a href="{% url 'marketplace:item_detail' item.id %}" class="text-decoration-none position-relative overflow-hidden" style="display: block; aspect-ratio: 4/3;">
+                        {% if item.images.first %}
+                            {% if item.images.first.thumbnail %}
+                                <img src="{{ item.images.first.thumbnail.url }}" 
+                                     class="card-img-top" 
+                                     alt="{{ item.title }}" 
+                                     loading="lazy"
+                                     style="width: 100%; height: 100%; object-fit: cover; object-position: center; transition: transform 0.3s ease;">
+                            {% else %}
+                                <img src="{{ item.images.first.image.url }}" 
+                                     class="card-img-top" 
+                                     alt="{{ item.title }}" 
+                                     loading="lazy"
+                                     style="width: 100%; height: 100%; object-fit: cover; object-position: center; transition: transform 0.3s ease;">
+                            {% endif %}
                         {% else %}
-                            <img src="{{ item.images.first.image.url }}" class="card-img-top" alt="{{ item.title }}" style="height: 220px; object-fit: cover;">
+                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="width: 100%; height: 100%; aspect-ratio: 4/3;">
+                                <i class="fas fa-image fa-3x text-muted"></i>
+                            </div>
                         {% endif %}
-                    {% else %}
-                        <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 220px;">
-                            <i class="fas fa-image fa-3x text-white"></i>
+                    </a>
+                    <div class="card-body p-3">
+                        <a href="{% url 'marketplace:item_detail' item.id %}" class="text-decoration-none">
+                            <h5 class="product-title mb-2">{{ item.title }}</h5>
+                        </a>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="product-price">${{ item.daily_price }}/day</span>
+                            <span class="badge bg-light text-dark border">{{ item.category.name }}</span>
                         </div>
-                    {% endif %}
-                    <div class="card-body p-4">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <span class="badge bg-blue-medium">{{ item.category.name }}</span>
-                            <span class="badge bg-{% if item.condition == 'excellent' %}success{% elif item.condition == 'good' %}secondary{% elif item.condition == 'fair' %}warning{% else %}danger{% endif %}">
-                                {{ item.condition|title }}
-                            </span>
-                        </div>
-                        <h5 class="card-title fw-bold mb-2">{{ item.title }}</h5>
-                        <p class="card-text text-muted mb-3">{{ item.description|truncatewords:15 }}</p>
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <span class="fw-bold text-accent fs-5">${{ item.daily_price }}/day</span>
+                        <div class="d-flex justify-content-between align-items-center">
                             <small class="text-muted">
                                 <i class="fas fa-map-marker-alt me-1"></i>{{ item.location }}
                             </small>
+                            <span class="badge bg-{% if item.condition == 'excellent' %}success{% elif item.condition == 'good' %}info{% elif item.condition == 'fair' %}warning{% else %}secondary{% endif %}">
+                                {{ item.condition|title }}
+                            </span>
                         </div>
-                        <a href="{% url 'marketplace:item_detail' item.id %}" class="btn btn-blue-medium w-100">
-                            <i class="fas fa-eye me-2"></i>View Details
-                        </a>
                     </div>
                 </div>
             </div>
@@ -175,17 +210,25 @@
 <section class="py-5">
     <div class="container">
         <div class="text-center mb-5">
-            <h2 class="fw-bold mb-3">Why Choose GearGo?</h2>
-            <p class="text-muted fs-5">Experience the future of gear rental with our advanced features</p>
+            <h2 class="fw-bold mb-3" style="color: var(--dark-color);">Welcome to GearGo!</h2>
+            <h3 class="h4 mb-3" style="color: var(--dark-color);">The ultimate gear rental marketplace</h3>
+            <p class="text-muted mb-4" style="max-width: 800px; margin: 0 auto;">
+                <strong>From beginner to pro, we've got you covered!</strong><br>
+                Choose from an unrivalled selection of bikes, instruments, sound equipment, and event gear. Our experienced platform with AI-powered matching can guide you to the perfect rental.
+            </p>
+            <div class="d-flex gap-3 justify-content-center flex-wrap">
+                <a href="{% url 'marketplace:item_list' %}" class="btn btn-dark px-4">Browse Items</a>
+                <a href="{% url 'marketplace:category_list' %}" class="btn btn-outline-dark px-4">View Categories</a>
+            </div>
         </div>
         <div class="row">
             <div class="col-lg-4 col-md-6 mb-4">
                 <div class="card border-0 shadow-sm h-100 hover-lift">
                     <div class="card-body text-center p-4">
-                        <div class="bg-blue-light bg-opacity-20 rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
-                            <i class="fas fa-robot fa-2x text-blue-dark"></i>
+                        <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
+                            <i class="fas fa-robot fa-2x" style="color: var(--dark-color);"></i>
                         </div>
-                        <h5 class="fw-bold mb-3">AI-Powered Matching</h5>
+                        <h5 class="fw-bold mb-3" style="color: var(--dark-color);">AI-Powered Matching</h5>
                         <p class="text-muted">Our intelligent system helps you find the perfect gear based on your preferences and rental history.</p>
                     </div>
                 </div>
@@ -193,10 +236,10 @@
             <div class="col-lg-4 col-md-6 mb-4">
                 <div class="card border-0 shadow-sm h-100 hover-lift">
                     <div class="card-body text-center p-4">
-                        <div class="bg-blue-medium bg-opacity-20 rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
-                            <i class="fas fa-shield-alt fa-2x text-blue-medium"></i>
+                        <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
+                            <i class="fas fa-shield-alt fa-2x" style="color: var(--dark-color);"></i>
                         </div>
-                        <h5 class="fw-bold mb-3">Secure Transactions</h5>
+                        <h5 class="fw-bold mb-3" style="color: var(--dark-color);">Secure Transactions</h5>
                         <p class="text-muted">Safe and secure payment processing with built-in fraud detection and comprehensive damage protection.</p>
                     </div>
                 </div>
@@ -204,10 +247,10 @@
             <div class="col-lg-4 col-md-6 mb-4">
                 <div class="card border-0 shadow-sm h-100 hover-lift">
                     <div class="card-body text-center p-4">
-                        <div class="bg-blue-dark bg-opacity-20 rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
-                            <i class="fas fa-star fa-2x text-blue-light"></i>
+                        <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
+                            <i class="fas fa-star fa-2x" style="color: var(--dark-color);"></i>
                         </div>
-                        <h5 class="fw-bold mb-3">Trusted Community</h5>
+                        <h5 class="fw-bold mb-3" style="color: var(--dark-color);">Trusted Community</h5>
                         <p class="text-muted">Join a community of verified owners and renters with transparent ratings and detailed reviews.</p>
                     </div>
                 </div>
@@ -339,23 +382,42 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<!-- Hover Effects CSS -->
+<!-- Product Card Styles - Inspired by sax.co.uk -->
 <style>
+.product-card {
+    transition: all 0.2s ease;
+    border: 1px solid #e5e5e5;
+}
+
+.product-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border-color: var(--dark-color);
+}
+
+.product-card .card-img-top {
+    transition: transform 0.3s ease;
+}
+
+.product-card:hover .card-img-top {
+    transform: scale(1.02);
+}
+
+.product-card a {
+    color: inherit;
+}
+
+.product-card a:hover {
+    color: var(--dark-color);
+}
+
 .hover-lift {
     transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
 
 .hover-lift:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
-}
-
-.card {
-    transition: all 0.3s ease;
-}
-
-.card:hover {
-    border-color: var(--primary-color);
+    transform: translateY(-3px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1) !important;
 }
 </style>
 {% endblock %}

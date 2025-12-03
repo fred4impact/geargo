@@ -129,6 +129,13 @@ class Booking(models.Model):
         ('cancelled', 'Cancelled'),
     ]
     
+    PAYMENT_STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('paid', 'Paid'),
+        ('failed', 'Failed'),
+        ('refunded', 'Refunded'),
+    ]
+    
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     renter = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='rentals')
     item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name='bookings')
@@ -136,6 +143,9 @@ class Booking(models.Model):
     end_date = models.DateField()
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    payment_status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default='pending')
+    payment_date = models.DateTimeField(null=True, blank=True)
+    payment_transaction_id = models.CharField(max_length=100, blank=True, help_text="Mock transaction ID for now")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -263,3 +273,66 @@ class ServiceReview(models.Model):
     
     def __str__(self):
         return f"Review for {self.service.title} - {self.rating} stars"
+
+
+class KYCVerification(models.Model):
+    """Simple KYC verification for renters"""
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    ]
+    
+    ID_TYPE_CHOICES = [
+        ('passport', 'Passport'),
+        ('driver_license', 'Driver License'),
+        ('national_id', 'National ID'),
+        ('other', 'Other'),
+    ]
+    
+    profile = models.OneToOneField(Profile, on_delete=models.CASCADE, related_name='kyc_verification')
+    
+    # Basic information
+    legal_name = models.CharField(max_length=255)
+    id_type = models.CharField(max_length=50, choices=ID_TYPE_CHOICES)
+    id_number = models.CharField(max_length=100)
+    id_document = models.ImageField(upload_to='kyc/documents/')
+    
+    # Verification status
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    verified_at = models.DateTimeField(null=True, blank=True)
+    verified_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='verified_kyc'
+    )
+    rejection_reason = models.TextField(blank=True)
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = 'KYC Verification'
+        verbose_name_plural = 'KYC Verifications'
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"KYC for {self.profile.user.email} - {self.status}"
+    
+    @property
+    def is_approved(self):
+        """Check if KYC is approved"""
+        return self.status == 'approved'
+    
+    @property
+    def is_pending(self):
+        """Check if KYC is pending"""
+        return self.status == 'pending'
+    
+    @property
+    def is_rejected(self):
+        """Check if KYC is rejected"""
+        return self.status == 'rejected'

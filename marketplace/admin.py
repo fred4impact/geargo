@@ -1,7 +1,8 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
-from .models import Profile, Category, Item, ItemImage, Booking, Review, ServiceCategory, Service, ServiceBooking, ServiceReview
+from django.utils import timezone
+from .models import Profile, Category, Item, ItemImage, Booking, Review, ServiceCategory, Service, ServiceBooking, ServiceReview, KYCVerification
 
 
 class ProfileInline(admin.StackedInline):
@@ -28,10 +29,10 @@ class ItemAdmin(admin.ModelAdmin):
 
 
 class BookingAdmin(admin.ModelAdmin):
-    list_display = ['id', 'renter', 'item', 'start_date', 'end_date', 'total_amount', 'status']
-    list_filter = ['status', 'start_date', 'end_date']
-    search_fields = ['renter__user__email', 'item__title']
-    readonly_fields = ['id', 'created_at', 'updated_at']
+    list_display = ['id', 'renter', 'item', 'start_date', 'end_date', 'total_amount', 'status', 'payment_status', 'payment_date']
+    list_filter = ['status', 'payment_status', 'start_date', 'end_date', 'payment_date']
+    search_fields = ['renter__user__email', 'item__title', 'payment_transaction_id']
+    readonly_fields = ['id', 'created_at', 'updated_at', 'payment_transaction_id']
 
 
 class ReviewAdmin(admin.ModelAdmin):
@@ -75,6 +76,38 @@ class ServiceReviewAdmin(admin.ModelAdmin):
     readonly_fields = ['created_at']
 
 
+class KYCVerificationAdmin(admin.ModelAdmin):
+    """Admin interface for KYC verification"""
+    list_display = ['profile', 'legal_name', 'id_type', 'status', 'created_at', 'verified_at']
+    list_filter = ['status', 'id_type', 'created_at', 'verified_at']
+    search_fields = ['profile__user__email', 'profile__user__first_name', 'profile__user__last_name', 'legal_name', 'id_number']
+    readonly_fields = ['created_at', 'updated_at']
+    
+    fieldsets = (
+        ('User Information', {
+            'fields': ('profile', 'legal_name')
+        }),
+        ('Identity Information', {
+            'fields': ('id_type', 'id_number', 'id_document')
+        }),
+        ('Verification Status', {
+            'fields': ('status', 'verified_at', 'verified_by', 'rejection_reason')
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at')
+        }),
+    )
+    
+    def save_model(self, request, obj, form, change):
+        """Handle status changes"""
+        if change and 'status' in form.changed_data:
+            if obj.status == 'approved' and not obj.verified_at:
+                obj.verified_by = request.user
+                obj.verified_at = timezone.now()
+        
+        super().save_model(request, obj, form, change)
+
+
 # Re-register UserAdmin
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
@@ -90,3 +123,6 @@ admin.site.register(ServiceCategory, ServiceCategoryAdmin)
 admin.site.register(Service, ServiceAdmin)
 admin.site.register(ServiceBooking, ServiceBookingAdmin)
 admin.site.register(ServiceReview, ServiceReviewAdmin)
+
+# Register KYC model
+admin.site.register(KYCVerification, KYCVerificationAdmin)

@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-from .models import Item, Booking, Profile, Category, Service, ServiceCategory, ServiceBooking, ServiceReview
+from .models import Item, Booking, Profile, Category, Service, ServiceCategory, ServiceBooking, ServiceReview, KYCVerification
 from django.utils import timezone
 
 
@@ -254,3 +254,36 @@ class ServiceReviewForm(forms.ModelForm):
             'rating': forms.Select(choices=[(i, i) for i in range(1, 6)], attrs={'class': 'form-control'}),
             'comment': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
         }
+
+
+class KYCVerificationForm(forms.ModelForm):
+    """Simple KYC verification form for renters"""
+    
+    class Meta:
+        model = KYCVerification
+        fields = ['legal_name', 'id_type', 'id_number', 'id_document']
+        widgets = {
+            'legal_name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter your full legal name'
+            }),
+            'id_type': forms.Select(attrs={
+                'class': 'form-control'
+            }),
+            'id_number': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter your ID number'
+            }),
+            'id_document': forms.FileInput(attrs={
+                'class': 'form-control',
+                'accept': 'image/*,.pdf'
+            }),
+        }
+    
+    def clean_id_document(self):
+        document = self.cleaned_data.get('id_document')
+        if document:
+            # Check file size (max 5MB)
+            if document.size > 5 * 1024 * 1024:
+                raise forms.ValidationError("File size must be less than 5MB.")
+        return document

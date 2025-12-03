@@ -3,25 +3,33 @@
 {% block title %}Browse Items - GearGo{% endblock %}
 
 {% block content %}
-<div class="container py-5">
+<div class="container py-4">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h2 fw-bold mb-2">Browse Items</h1>
+            <p class="text-muted">Find the perfect gear for your needs</p>
+        </div>
+    </div>
+    
     <div class="row">
-        <!-- Filters Sidebar -->
-        <div class="col-lg-3">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Filters</h5>
+        <!-- Filters Sidebar - Inspired by sax.co.uk -->
+        <div class="col-lg-3 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0 fw-bold">Filter</h5>
                 </div>
                 <div class="card-body">
-                    <form method="get">
+                    <form method="get" id="filter-form">
                         <!-- Search -->
-                        <div class="mb-3">
-                            <label for="search" class="form-label">Search</label>
+                        <div class="mb-4">
+                            <label for="search" class="form-label fw-semibold mb-2">Search</label>
                             <input type="text" class="form-control" id="search" name="search" value="{{ search_query }}" placeholder="Search items...">
                         </div>
                         
                         <!-- Category Filter -->
-                        <div class="mb-3">
-                            <label for="category" class="form-label">Category</label>
+                        <div class="mb-4">
+                            <label for="category" class="form-label fw-semibold mb-2">Category</label>
                             <select class="form-select" id="category" name="category">
                                 <option value="">All Categories</option>
                                 {% for category in categories %}
@@ -32,60 +40,128 @@
                             </select>
                         </div>
                         
+                        <!-- Price Range -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold mb-2">Price Range</label>
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <input type="number" class="form-control" name="min_price" placeholder="Min" min="0">
+                                </div>
+                                <div class="col-6">
+                                    <input type="number" class="form-control" name="max_price" placeholder="Max" min="0">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Condition Filter -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold mb-2">Condition</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="condition" value="excellent" id="cond_excellent">
+                                <label class="form-check-label" for="cond_excellent">Excellent</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="condition" value="good" id="cond_good">
+                                <label class="form-check-label" for="cond_good">Good</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="condition" value="fair" id="cond_fair">
+                                <label class="form-check-label" for="cond_fair">Fair</label>
+                            </div>
+                        </div>
+                        
                         <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
+                        <a href="{% url 'marketplace:item_list' %}" class="btn btn-outline-secondary w-100 mt-2">Clear All</a>
                     </form>
                 </div>
             </div>
         </div>
         
-        <!-- Items Grid -->
+        <!-- Items Grid - Inspired by sax.co.uk -->
         <div class="col-lg-9">
+            <!-- Toolbar -->
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2>Browse Items</h2>
-                {% if user.is_authenticated %}
-                    <a href="{% url 'marketplace:item_create' %}" class="btn btn-primary">
-                        <i class="fas fa-plus me-2"></i>List Item
-                    </a>
-                {% endif %}
+                <div>
+                    <span class="text-muted">
+                        {% if page_obj %}
+                            {{ page_obj.paginator.count }} product{{ page_obj.paginator.count|pluralize }}
+                        {% else %}
+                            0 products
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            Sort by: Best selling
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="sortDropdown">
+                            <li><a class="dropdown-item" href="?sort=price_asc">Price: Low to High</a></li>
+                            <li><a class="dropdown-item" href="?sort=price_desc">Price: High to Low</a></li>
+                            <li><a class="dropdown-item" href="?sort=newest">Newest First</a></li>
+                            <li><a class="dropdown-item" href="?sort=popular">Most Popular</a></li>
+                        </ul>
+                    </div>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'marketplace:item_create' %}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-plus me-1"></i>List Item
+                        </a>
+                    {% endif %}
+                </div>
             </div>
             
             {% if page_obj %}
-                <div class="row">
+                <!-- Product Grid - Matching sax.co.uk layout -->
+                <div class="row g-3">
                     {% for item in page_obj %}
-                    <div class="col-lg-4 col-md-6 mb-4">
-                        <div class="card h-100">
-                            {% if item.images.first %}
-                                <img src="{{ item.images.first.image.url }}" class="card-img-top" alt="{{ item.title }}" style="height: 200px; object-fit: cover;">
-                            {% else %}
-                                <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 200px;">
-                                    <i class="fas fa-image fa-3x text-white"></i>
-                                </div>
-                            {% endif %}
-                            <div class="card-body">
-                                <h5 class="card-title">{{ item.title }}</h5>
-                                <p class="card-text text-muted">{{ item.description|truncatewords:15 }}</p>
+                    <div class="col-lg-4 col-md-6">
+                        <div class="card product-card h-100 border-0">
+                            <a href="{% url 'marketplace:item_detail' item.id %}" class="text-decoration-none position-relative overflow-hidden" style="display: block; aspect-ratio: 4/3;">
+                                {% if item.images.first %}
+                                    {% if item.images.first.thumbnail %}
+                                        <img src="{{ item.images.first.thumbnail.url }}" 
+                                             class="card-img-top" 
+                                             alt="{{ item.title }}" 
+                                             loading="lazy"
+                                             style="width: 100%; height: 100%; object-fit: cover; object-position: center; transition: transform 0.3s ease;">
+                                    {% else %}
+                                        <img src="{{ item.images.first.image.url }}" 
+                                             class="card-img-top" 
+                                             alt="{{ item.title }}" 
+                                             loading="lazy"
+                                             style="width: 100%; height: 100%; object-fit: cover; object-position: center; transition: transform 0.3s ease;">
+                                    {% endif %}
+                                {% else %}
+                                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="width: 100%; height: 100%; aspect-ratio: 4/3;">
+                                        <i class="fas fa-image fa-3x text-muted"></i>
+                                    </div>
+                                {% endif %}
+                            </a>
+                            <div class="card-body p-3">
+                                <a href="{% url 'marketplace:item_detail' item.id %}" class="text-decoration-none">
+                                    <h5 class="product-title mb-2">{{ item.title }}</h5>
+                                </a>
                                 <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <span class="badge bg-primary">{{ item.category.name }}</span>
+                                    <span class="product-price">${{ item.daily_price }}/day</span>
+                                    <span class="badge bg-light text-dark border">{{ item.category.name }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">
+                                        <i class="fas fa-map-marker-alt me-1"></i>{{ item.location }}
+                                    </small>
                                     <span class="badge bg-{% if item.condition == 'excellent' %}success{% elif item.condition == 'good' %}info{% elif item.condition == 'fair' %}warning{% else %}secondary{% endif %}">
                                         {{ item.condition|title }}
                                     </span>
                                 </div>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span class="fw-bold text-primary">${{ item.daily_price }}/day</span>
-                                    <small class="text-muted">{{ item.location }}</small>
-                                </div>
-                            </div>
-                            <div class="card-footer bg-transparent">
-                                <a href="{% url 'marketplace:item_detail' item.id %}" class="btn btn-outline-primary w-100">View Details</a>
                             </div>
                         </div>
                     </div>
                     {% endfor %}
                 </div>
                 
-                <!-- Pagination -->
+                <!-- Pagination - Inspired by sax.co.uk -->
                 {% if page_obj.has_other_pages %}
-                <nav aria-label="Page navigation" class="mt-4">
+                <nav aria-label="Page navigation" class="mt-5">
                     <ul class="pagination justify-content-center">
                         {% if page_obj.has_previous %}
                             <li class="page-item">
@@ -96,9 +172,17 @@
                             </li>
                         {% endif %}
                         
-                        <li class="page-item active">
-                            <span class="page-link">{{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
-                        </li>
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ num }}</span>
+                                </li>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
                         
                         {% if page_obj.has_next %}
                             <li class="page-item">
@@ -114,12 +198,33 @@
             {% else %}
                 <div class="text-center py-5">
                     <i class="fas fa-search fa-3x text-muted mb-3"></i>
-                    <h4>No items found</h4>
+                    <h4 class="fw-bold">No items found</h4>
                     <p class="text-muted">Try adjusting your search criteria or browse all categories.</p>
-                    <a href="{% url 'marketplace:item_list' %}" class="btn btn-primary">Clear Filters</a>
+                    <a href="{% url 'marketplace:item_list' %}" class="btn btn-primary mt-3">Clear Filters</a>
                 </div>
             {% endif %}
         </div>
     </div>
 </div>
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .product-card {
+        transition: all 0.2s ease;
+    }
+    
+    .product-card:hover {
+        transform: translateY(-2px);
+    }
+    
+    .product-card a {
+        color: inherit;
+    }
+    
+    .product-card a:hover {
+        color: var(--primary-color);
+    }
+</style>
 {% endblock %}

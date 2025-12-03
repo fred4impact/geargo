@@ -1,0 +1,125 @@
+{% extends 'marketplace/base.html' %}
+
+{% block title %}KYC Verification Status - GearGo{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom py-4">
+                    <h2 class="fw-bold mb-0" style="color: var(--dark-color);">
+                        <i class="fas fa-id-card me-2"></i>KYC Verification Status
+                    </h2>
+                </div>
+                <div class="card-body p-4">
+                    {% if kyc %}
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="mb-0">Status</h5>
+                                {% if kyc.is_approved %}
+                                    <span class="badge bg-success fs-6 px-3 py-2">
+                                        <i class="fas fa-check-circle me-1"></i>Approved
+                                    </span>
+                                {% elif kyc.is_pending %}
+                                    <span class="badge bg-warning fs-6 px-3 py-2">
+                                        <i class="fas fa-clock me-1"></i>Pending Review
+                                    </span>
+                                {% elif kyc.is_rejected %}
+                                    <span class="badge bg-danger fs-6 px-3 py-2">
+                                        <i class="fas fa-times-circle me-1"></i>Rejected
+                                    </span>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <p class="mb-2"><strong>Legal Name:</strong></p>
+                                    <p class="text-muted">{{ kyc.legal_name }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="mb-2"><strong>ID Type:</strong></p>
+                                    <p class="text-muted">{{ kyc.get_id_type_display }}</p>
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <p class="mb-2"><strong>ID Number:</strong></p>
+                                    <p class="text-muted">{{ kyc.id_number }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="mb-2"><strong>Submitted:</strong></p>
+                                    <p class="text-muted">{{ kyc.created_at|date:"F d, Y" }}</p>
+                                </div>
+                            </div>
+                            
+                            {% if kyc.verified_at %}
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <p class="mb-2"><strong>Verified At:</strong></p>
+                                        <p class="text-muted">{{ kyc.verified_at|date:"F d, Y" }}</p>
+                                    </div>
+                                    {% if kyc.verified_by %}
+                                    <div class="col-md-6">
+                                        <p class="mb-2"><strong>Verified By:</strong></p>
+                                        <p class="text-muted">{{ kyc.verified_by.get_full_name|default:kyc.verified_by.email }}</p>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                            
+                            {% if kyc.is_rejected and kyc.rejection_reason %}
+                                <div class="alert alert-danger">
+                                    <strong>Rejection Reason:</strong><br>
+                                    {{ kyc.rejection_reason }}
+                                </div>
+                            {% endif %}
+                            
+                            {% if kyc.id_document %}
+                                <div class="mb-3">
+                                    <p class="mb-2"><strong>ID Document:</strong></p>
+                                    <a href="{{ kyc.id_document.url }}" target="_blank" class="btn btn-outline-dark btn-sm">
+                                        <i class="fas fa-eye me-1"></i>View Document
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            {% if kyc.is_approved %}
+                                <div class="alert alert-success">
+                                    <i class="fas fa-check-circle me-2"></i>
+                                    <strong>Great!</strong> Your KYC verification is approved. You can now rent items.
+                                </div>
+                                <a href="{% url 'marketplace:item_list' %}" class="btn btn-dark">
+                                    <i class="fas fa-shopping-bag me-2"></i>Browse Items
+                                </a>
+                            {% elif kyc.is_pending %}
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-clock me-2"></i>
+                                    Your verification is being reviewed. We'll notify you once it's processed.
+                                </div>
+                            {% elif kyc.is_rejected %}
+                                <a href="{% url 'marketplace:kyc_submit' %}" class="btn btn-dark">
+                                    <i class="fas fa-redo me-2"></i>Resubmit Verification
+                                </a>
+                            {% endif %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-id-card fa-3x text-muted mb-3"></i>
+                            <h4 class="fw-bold mb-3">No KYC Verification Found</h4>
+                            <p class="text-muted mb-4">You need to complete KYC verification before you can rent items.</p>
+                            <a href="{% url 'marketplace:kyc_submit' %}" class="btn btn-dark btn-lg">
+                                <i class="fas fa-plus me-2"></i>Submit KYC Verification
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
