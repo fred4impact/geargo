@@ -2,6 +2,25 @@
 
 GearGo is a rental marketplace for bikes, instruments, and sound equipment. The platform connects owners who want to rent out their gear with renters looking for affordable, flexible rentals.
 
+## Screenshots
+
+<div align="center">
+  <img src="screenshots/homepage.png" alt="GearGo Home Page" width="800"/>
+  <p><em>Home Page - Browse available gear and services</em></p>
+</div>
+
+<div align="center">
+  <img src="screenshots/item-listing.png" alt="Item Listing" width="800"/>
+  <p><em>Item Listing - Search and filter rental items</em></p>
+</div>
+
+<div align="center">
+  <img src="screenshots/dashboard.png" alt="User Dashboard" width="800"/>
+  <p><em>User Dashboard - Manage your rentals and bookings</em></p>
+</div>
+
+> **Note:** Add your screenshot images to the `screenshots/` directory. Supported formats: PNG, JPG, JPEG, GIF
+
 ## Phase 1 Implementation Status ✅
 
 ### What's Been Implemented:
