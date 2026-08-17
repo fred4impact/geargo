@@ -61,6 +61,20 @@ services:
       - redis
     restart: unless-stopped
 
+  # Frontend (Vite + React)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      web:
+        condition: service_started
+    restart: unless-stopped
+    networks:
+      - default
+
 volumes:
   postgres_data:
   redis_data:

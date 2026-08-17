@@ -1,0 +1,149 @@
+.kyc-page {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.kyc-container {
+  background: var(--color-bg);
+  padding: 2rem;
+  border-radius: 4px;
+  border: 1px solid var(--color-border);
+}
+
+.kyc-container h1 {
+  color: var(--color-text);
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.kyc-intro {
+  color: var(--color-text-secondary);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  margin: 0 0 1.5rem;
+}
+
+.kyc-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.kyc-form .form-group {
+  margin-bottom: 0;
+}
+
+.kyc-form .form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.kyc-form label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--color-text);
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+.kyc-form input,
+.kyc-form select {
+  width: 100%;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  font-size: 0.9375rem;
+  font-family: inherit;
+  background: var(--color-bg);
+  color: var(--color-text);
+  box-sizing: border-box;
+}
+
+.kyc-form input:focus,
+.kyc-form select:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 2px var(--color-accent-light);
+}
+
+.kyc-error {
+  color: #b91c1c;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.kyc-status-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.kyc-status-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  background: var(--color-bg-alt);
+  border-radius: 4px;
+  border: 1px solid var(--color-border);
+}
+
+.kyc-detail-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9375rem;
+}
+
+.kyc-detail-row strong {
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
+.kyc-detail-row span {
+  color: var(--color-text);
+}
+
+.kyc-rejection-reason {
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.kyc-rejection-reason strong {
+  display: block;
+  color: #b91c1c;
+  font-size: 0.8125rem;
+  margin-bottom: 0.25rem;
+}
+
+.kyc-rejection-reason p {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 0.9375rem;
+}
+
+.kyc-hint {
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.kyc-back-link {
+  display: inline-block;
+  margin-top: 1.5rem;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  font-size: 0.875rem;
+}
+
+.kyc-back-link:hover {
+  color: var(--color-accent);
+}
+
+@media (max-width: 640px) {
+  .kyc-form .form-row {
+    grid-template-columns: 1fr;
+  }
+}

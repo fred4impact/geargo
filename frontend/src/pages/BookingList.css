@@ -1,0 +1,75 @@
+.booking-list {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.booking-list h1 {
+  color: var(--whatsapp-text-primary);
+  margin-bottom: 2rem;
+  font-weight: 500;
+  font-size: 1.75rem;
+}
+
+.bookings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.booking-card {
+  display: block;
+  background: var(--whatsapp-bg-white);
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px var(--whatsapp-shadow);
+  border: 1px solid var(--whatsapp-border);
+  text-decoration: none;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.booking-card:hover {
+  box-shadow: 0 4px 12px var(--whatsapp-shadow-hover, var(--whatsapp-shadow));
+  transform: translateY(-1px);
+}
+
+.booking-card h3 {
+  color: var(--whatsapp-text-primary);
+  margin-bottom: 1rem;
+  font-weight: 500;
+  font-size: 1.125rem;
+}
+
+.booking-dates {
+  color: var(--whatsapp-text-secondary);
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.booking-amount {
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: var(--whatsapp-green-dark);
+  margin-bottom: 1rem;
+}
+
+.booking-status {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.no-bookings {
+  text-align: center;
+  padding: 3rem;
+  color: var(--whatsapp-text-secondary);
+  font-size: 0.9375rem;
+}
+
+.loading {
+  text-align: center;
+  padding: 3rem;
+  color: var(--whatsapp-text-secondary);
+  font-size: 0.9375rem;
+  font-weight: 400;
+}
