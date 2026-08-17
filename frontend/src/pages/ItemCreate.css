@@ -1,0 +1,107 @@
+.item-create {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.form-container {
+  background: var(--whatsapp-bg-white);
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px var(--whatsapp-shadow);
+  border: 1px solid var(--whatsapp-border);
+}
+
+.form-container h1 {
+  color: var(--whatsapp-text-primary);
+  margin-bottom: 2rem;
+  font-weight: 500;
+  font-size: 1.75rem;
+}
+
+.form-group {
+  margin-bottom: 1.25rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--whatsapp-text-primary);
+  font-weight: 400;
+  font-size: 0.9375rem;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--whatsapp-border);
+  border-radius: 8px;
+  font-size: 0.9375rem;
+  font-family: inherit;
+  background-color: var(--whatsapp-bg-white);
+  color: var(--whatsapp-text-primary);
+  transition: all 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--whatsapp-green);
+  box-shadow: 0 0 0 3px rgba(37, 211, 102, 0.1);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.image-preview-list {
+  list-style: none;
+  margin: 0.75rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.image-preview-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.75rem;
+  background: var(--color-bg-alt);
+  border: 1px solid var(--whatsapp-border);
+  border-radius: 4px;
+  font-size: 0.875rem;
+  color: var(--whatsapp-text-primary);
+}
+
+.image-preview-list button {
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font-size: 1.125rem;
+  line-height: 1;
+  padding: 0 0.25rem;
+}
+
+.image-preview-list button:hover {
+  color: #b91c1c;
+}
+
+.item-create-error {
+  color: #b91c1c;
+  font-size: 0.875rem;
+  margin: 0.75rem 0 0;
+}
+
+@media (max-width: 768px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}

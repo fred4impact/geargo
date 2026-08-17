@@ -1,0 +1,288 @@
+.service-list-page {
+  width: 100%;
+  min-height: calc(100vh - 64px);
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  background-color: var(--color-bg-alt);
+}
+
+.service-list-page .page-header {
+  background: var(--color-bg);
+  color: var(--color-text);
+  padding: 2rem 1.5rem;
+  margin-bottom: 0;
+  width: 100%;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.service-list-page .page-header-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.service-list-page .page-header h1 {
+  color: var(--color-text);
+  margin-bottom: 1.25rem;
+  font-size: 1.75rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.service-list-page .search-form {
+  display: flex;
+  gap: 0.75rem;
+  max-width: 560px;
+}
+
+.service-list-page .search-input {
+  flex: 1;
+  padding: 0.625rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  font-size: 0.9375rem;
+  font-family: inherit;
+  background: var(--color-bg);
+  color: var(--color-text);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.service-list-page .search-input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 2px var(--color-accent-light);
+}
+
+.service-list-page .search-form .btn-primary {
+  padding: 0.625rem 1.25rem;
+  white-space: nowrap;
+}
+
+.service-list-container {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.service-list-page .filters {
+  background: var(--color-bg);
+  padding: 1.25rem;
+  border-radius: 4px;
+  border: 1px solid var(--color-border);
+  height: fit-content;
+  position: sticky;
+  top: 80px;
+}
+
+.service-list-page .filters h3 {
+  color: var(--color-text);
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.service-list-page .category-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.service-list-page .filter-btn {
+  padding: 0.5rem 0.75rem;
+  border: none;
+  background: transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.2s ease, color 0.2s ease;
+  font-weight: 400;
+  font-size: 0.9375rem;
+  color: var(--color-text);
+  font-family: inherit;
+}
+
+.service-list-page .filter-btn:hover {
+  background: var(--color-accent-light);
+  color: var(--color-accent-dark);
+}
+
+.service-list-page .filter-btn.active {
+  background: var(--color-accent-light);
+  color: var(--color-accent-dark);
+  font-weight: 500;
+}
+
+.service-list-page .list-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.service-list-page .list-count {
+  font-size: 0.9375rem;
+  color: var(--color-text-muted);
+  font-weight: 400;
+}
+
+.service-list-page .list-sort {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.service-list-page .list-sort label {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+.service-list-page .list-sort select {
+  padding: 0.5rem 2rem 0.5rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-family: inherit;
+  background: var(--color-bg);
+  color: var(--color-text);
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23555' d='M6 8L2 4h8z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+}
+
+.service-list-page .list-sort select:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}
+
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  width: 100%;
+}
+
+.service-list-page .service-card {
+  background: var(--color-bg);
+  border-radius: 4px;
+  border: 1px solid var(--color-border);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 1.25rem;
+}
+
+.service-list-page .service-card:hover {
+  border-color: var(--color-accent);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.service-card-category {
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-accent-dark);
+  background: var(--color-accent-light);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  width: fit-content;
+}
+
+.service-list-page .service-card h3 {
+  color: var(--color-text);
+  margin: 0.25rem 0 0;
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.service-rate {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0;
+}
+
+.service-location,
+.service-provider {
+  color: var(--color-text-muted);
+  font-size: 0.8125rem;
+  margin: 0;
+}
+
+.service-rating {
+  color: var(--color-text);
+  font-size: 0.8125rem;
+  margin: 0.15rem 0 0;
+}
+
+.service-list-page .loading,
+.service-list-page .no-items {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 3rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  background: var(--color-bg);
+  border-radius: 4px;
+  border: 1px solid var(--color-border);
+}
+
+.service-list-page .no-items p {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--color-text);
+  margin: 0;
+}
+
+.service-list-page .no-items-hint {
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+@media (max-width: 1024px) {
+  .services-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 968px) {
+  .service-list-container {
+    grid-template-columns: 1fr;
+    padding: 1.5rem 1rem;
+  }
+
+  .service-list-page .filters {
+    position: static;
+    margin-bottom: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .services-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .service-list-page .search-form {
+    flex-direction: column;
+  }
+}

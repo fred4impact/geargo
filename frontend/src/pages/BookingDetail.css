@@ -1,0 +1,100 @@
+.booking-detail {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.back-link {
+  display: inline-block;
+  color: var(--whatsapp-text-secondary);
+  text-decoration: none;
+  margin-bottom: 1.5rem;
+  font-size: 0.9375rem;
+}
+
+.back-link:hover {
+  color: var(--color-accent);
+}
+
+.booking-detail-card {
+  background: var(--whatsapp-bg-white);
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px var(--whatsapp-shadow);
+  border: 1px solid var(--whatsapp-border);
+}
+
+.booking-detail-card h1 {
+  color: var(--whatsapp-text-primary);
+  margin-bottom: 1rem;
+  font-weight: 500;
+  font-size: 1.5rem;
+}
+
+.booking-detail-card .booking-dates {
+  color: var(--whatsapp-text-secondary);
+  margin-bottom: 0.5rem;
+  font-size: 0.9375rem;
+}
+
+.booking-detail-card .booking-amount {
+  font-size: 1.375rem;
+  font-weight: 500;
+  color: var(--whatsapp-green-dark);
+  margin-bottom: 1rem;
+}
+
+.booking-detail-card .booking-status {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.pay-button {
+  width: 100%;
+}
+
+.cancel-button {
+  width: 100%;
+  margin-top: 0.75rem;
+}
+
+.payment-error {
+  color: var(--color-error, #d32f2f);
+  margin-top: 0.75rem;
+  font-size: 0.875rem;
+}
+
+.payment-banner {
+  padding: 1rem 1.25rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-size: 0.9375rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.payment-banner-success {
+  background-color: rgba(37, 211, 102, 0.12);
+  color: var(--whatsapp-green-dark);
+  border: 1px solid rgba(37, 211, 102, 0.3);
+}
+
+.payment-banner-cancelled {
+  background-color: rgba(211, 47, 47, 0.08);
+  color: #d32f2f;
+  border: 1px solid rgba(211, 47, 47, 0.25);
+}
+
+.link-button {
+  background: none;
+  border: none;
+  color: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 0.875rem;
+  padding: 0;
+}
