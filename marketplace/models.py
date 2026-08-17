@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
@@ -145,7 +147,8 @@ class Booking(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     payment_status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default='pending')
     payment_date = models.DateTimeField(null=True, blank=True)
-    payment_transaction_id = models.CharField(max_length=100, blank=True, help_text="Mock transaction ID for now")
+    payment_transaction_id = models.CharField(max_length=100, blank=True, help_text="Stripe PaymentIntent ID")
+    stripe_checkout_session_id = models.CharField(max_length=255, blank=True, default='')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -251,7 +254,7 @@ class ServiceBooking(models.Model):
         # Calculate total hours and cost if not set
         if not self.total_hours:
             duration = self.end_time - self.start_time
-            self.total_hours = duration.total_seconds() / 3600  # Convert to hours
+            self.total_hours = Decimal(str(duration.total_seconds() / 3600))  # Convert to hours
         
         if not self.total_cost:
             self.total_cost = self.total_hours * self.service.hourly_rate

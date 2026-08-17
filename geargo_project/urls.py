@@ -22,7 +22,9 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('allauth.urls')),
-    path('', include('marketplace.urls')),
+    path('api/', include('marketplace.api_urls')),
+    path('api/', include('notifications.api_urls')),
+    path('', include('marketplace.urls')),  # Keep old template views for admin/backward compatibility
 ]
 
 # Serve media files during development
