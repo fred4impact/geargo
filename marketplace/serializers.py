@@ -163,10 +163,9 @@ class ReviewSerializer(serializers.ModelSerializer):
     booking_id = serializers.PrimaryKeyRelatedField(
         queryset=Booking.objects.all(),
         source='booking',
-        write_only=True,
-        required=False
+        write_only=True
     )
-    
+
     class Meta:
         model = Review
         fields = [
@@ -174,9 +173,20 @@ class ReviewSerializer(serializers.ModelSerializer):
             'rating', 'comment', 'created_at'
         ]
         read_only_fields = ['id', 'reviewer', 'item', 'booking', 'created_at']
-    
+
+    def validate_booking_id(self, booking):
+        profile = self.context['request'].user.profile
+        if booking.renter != profile:
+            raise serializers.ValidationError('You can only review your own bookings.')
+        if booking.status != 'completed':
+            raise serializers.ValidationError('You can only review completed bookings.')
+        if Review.objects.filter(reviewer=profile, booking=booking).exists():
+            raise serializers.ValidationError('You have already reviewed this booking.')
+        return booking
+
     def create(self, validated_data):
         validated_data['reviewer'] = self.context['request'].user.profile
+        validated_data['item'] = validated_data['booking'].item
         return super().create(validated_data)
 
 
@@ -306,7 +316,17 @@ class ServiceReviewSerializer(serializers.ModelSerializer):
             'rating', 'comment', 'created_at'
         ]
         read_only_fields = ['id', 'service', 'customer', 'booking', 'created_at']
-    
+
+    def validate_booking_id(self, booking):
+        profile = self.context['request'].user.profile
+        if booking.customer != profile:
+            raise serializers.ValidationError('You can only review your own bookings.')
+        if booking.status != 'completed':
+            raise serializers.ValidationError('You can only review completed bookings.')
+        if ServiceReview.objects.filter(customer=profile, booking=booking).exists():
+            raise serializers.ValidationError('You have already reviewed this booking.')
+        return booking
+
     def create(self, validated_data):
         validated_data['customer'] = self.context['request'].user.profile
         validated_data['service'] = validated_data['booking'].service
