@@ -250,6 +250,35 @@ class BookingViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     @action(detail=True, methods=['post'])
+    def complete(self, request, pk=None):
+        """Mark a booking as completed (owner only)"""
+        booking = self.get_object()
+        if booking.item.owner != request.user.profile:
+            return Response(
+                {'error': 'Only the item owner can mark a booking as completed'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        if booking.status not in ['confirmed', 'active']:
+            return Response(
+                {'error': 'Only confirmed or active bookings can be marked as completed'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        booking.status = 'completed'
+        booking.save()
+
+        from notifications.services import EmailNotificationService
+        EmailNotificationService.send_notification(
+            user=booking.renter.user,
+            notification_type='system_message',
+            title='Rental Completed',
+            message=f'Your rental of "{booking.item.title}" has been marked as completed. Leave a review!',
+            related_booking=booking,
+        )
+
+        serializer = self.get_serializer(booking)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['post'])
     def create_checkout_session(self, request, pk=None):
         """Create a Stripe Checkout session for paying this booking"""
         booking = self.get_object()
@@ -263,9 +292,9 @@ class BookingViewSet(viewsets.ModelViewSet):
                 {'error': 'Booking is already paid'},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        if booking.status == 'cancelled':
+        if booking.status in ['cancelled', 'completed']:
             return Response(
-                {'error': 'Cannot pay for a cancelled booking'},
+                {'error': f'Cannot pay for a {booking.status} booking'},
                 status=status.HTTP_400_BAD_REQUEST
             )
         try:
@@ -336,6 +365,34 @@ class ServiceBookingViewSet(viewsets.ModelViewSet):
         return ServiceBooking.objects.filter(
             Q(customer=user_profile) | Q(service__provider=user_profile)
         )
+
+    @action(detail=True, methods=['post'])
+    def complete(self, request, pk=None):
+        """Mark a service booking as completed (provider only)"""
+        booking = self.get_object()
+        if booking.service.provider != request.user.profile:
+            return Response(
+                {'error': 'Only the service provider can mark a booking as completed'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        if booking.status not in ['confirmed', 'in_progress']:
+            return Response(
+                {'error': 'Only confirmed or in-progress bookings can be marked as completed'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        booking.status = 'completed'
+        booking.save()
+
+        from notifications.services import EmailNotificationService
+        EmailNotificationService.send_notification(
+            user=booking.customer.user,
+            notification_type='system_message',
+            title='Service Completed',
+            message=f'Your booking for "{booking.service.title}" has been marked as completed. Leave a review!',
+        )
+
+        serializer = self.get_serializer(booking)
+        return Response(serializer.data)
 
 
 class ServiceReviewViewSet(viewsets.ModelViewSet):

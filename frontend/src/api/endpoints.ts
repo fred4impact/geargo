@@ -68,15 +68,17 @@ export const bookingApi = {
   create: (data: Partial<Booking> & { item_id?: string }) => api.post<Booking>('/bookings/', data),
   confirm: (id: string) => api.post<Booking>(`/bookings/${id}/confirm/`),
   cancel: (id: string) => api.post<Booking>(`/bookings/${id}/cancel/`),
+  complete: (id: string) => api.post<Booking>(`/bookings/${id}/complete/`),
   createCheckoutSession: (id: string) =>
     api.post<{ checkout_url: string; session_id: string }>(`/bookings/${id}/create_checkout_session/`),
 };
 
 // Review endpoints
 export const reviewApi = {
-  list: (params?: { item?: string; rating?: number }) =>
+  list: (params?: { item?: string; booking?: string; rating?: number }) =>
     api.get<PaginatedResponse<Review>>('/reviews/', { params }),
-  create: (data: Partial<Review>) => api.post<Review>('/reviews/', data),
+  create: (data: { booking_id: string; rating: number; comment: string }) =>
+    api.post<Review>('/reviews/', data),
 };
 
 // Service Category endpoints
@@ -103,13 +105,15 @@ export const serviceBookingApi = {
     api.post<ServiceBooking>('/service-bookings/', data),
   update: (id: string, data: Partial<ServiceBooking>) =>
     api.patch<ServiceBooking>(`/service-bookings/${id}/`, data),
+  complete: (id: string) => api.post<ServiceBooking>(`/service-bookings/${id}/complete/`),
 };
 
 // Service Review endpoints
 export const serviceReviewApi = {
-  list: (params?: { service?: string }) =>
+  list: (params?: { service?: string; booking?: string }) =>
     api.get<PaginatedResponse<ServiceReview>>('/service-reviews/', { params }),
-  create: (data: Partial<ServiceReview>) => api.post<ServiceReview>('/service-reviews/', data),
+  create: (data: { booking_id: string; rating: number; comment: string }) =>
+    api.post<ServiceReview>('/service-reviews/', data),
 };
 
 // Notification endpoints
